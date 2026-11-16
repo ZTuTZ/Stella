@@ -110,6 +110,15 @@ export interface CarouselStory {
   playing: boolean;
 }
 
+/** GET /api/v1/stories 分页响应 */
+export interface StoryPageResponse {
+  items: StoryResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 /** GET /api/v1/home（§12.7） */
 export interface HomeResponse {
   user: { id: number; displayName: string };

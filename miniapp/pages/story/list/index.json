@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "dream-orb": "/components/dream-orb/index",
+    "story-card": "/components/story-card/index",
+    "primary-button": "/components/primary-button/index"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "light"
+}

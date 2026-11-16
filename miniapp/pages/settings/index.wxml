@@ -1,0 +1,28 @@
+<view class="settings">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="top-title t-secondary">设置</text>
+    <view class="spacer" />
+  </view>
+
+  <view class="card anim-fade-up">
+    <text class="card-title t-page-title">关于 Future Self</text>
+    <text class="card-text t-body">这里是一个想象与自我激励的空间：把你的目标写成「已经实现的一天」，用旁白陪你每天听一遍未来的自己。</text>
+    <text class="card-text t-secondary">它不是预测，也不承诺结果；医疗、投资等重大决定请基于现实信息。</text>
+  </view>
+
+  <view class="card anim-fade-up">
+    <text class="card-title t-page-title">AI 生成内容说明</text>
+    <text class="card-text t-body">故事与音频均由 AI 生成（页面均有标识）。内容基于你填写的人生档案与目标，请注意个人信息授权范围。</text>
+  </view>
+
+  <view class="card anim-fade-up">
+    <text class="card-title t-page-title">数据</text>
+    <text class="card-text t-body">删除故事采用软删除；如需彻底清除账号数据，可在内测阶段联系开发者处理。</text>
+    <view class="logout" hover-class="logout-pressed" bindtap="onLogout">
+      <text class="logout-text">退出登录（清除本机登录数据）</text>
+    </view>
+  </view>
+
+  <text class="version t-tertiary">Future Self V1 · 内测版</text>
+</view>

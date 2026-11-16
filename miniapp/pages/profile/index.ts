@@ -1,6 +1,4 @@
-/**
- * 我的（占位，UI Phase 4 按 §41.6.9 实装：昵称 + 3~5 个大块浅色入口）。
- */
+/** 我的（§41.6.9 / UI Phase 4）：昵称 + Orb + 3 个大块浅色入口。 */
 import { meApi } from "../../services/api";
 import { MeResponse } from "../../types/api";
 
@@ -19,5 +17,17 @@ Page({
     }).catch(() => {
       // 未登录/网络问题保持占位文案
     });
+  },
+
+  onEditProfile() {
+    wx.navigateTo({ url: "/pages/profile/edit/index" });
+  },
+
+  onLibrary() {
+    wx.navigateTo({ url: "/pages/story/list/index" });
+  },
+
+  onSettings() {
+    wx.navigateTo({ url: "/pages/settings/index" });
   },
 })

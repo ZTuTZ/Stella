@@ -9,6 +9,7 @@ import {
   LifeProfileResponse,
   LoginUser,
   MeResponse,
+  StoryPageResponse,
   StoryResponse,
   TaskResponse,
 } from "../types/api";
@@ -53,6 +54,11 @@ export const generationApi = {
 
 export const storyApi = {
   detail: (storyId: number) => api.get<StoryResponse>(`/api/v1/stories/${storyId}`),
+  list: (page: number, size: number, favoriteOnly: boolean, options?: RequestOptions) =>
+    api.get<StoryPageResponse>(
+      `/api/v1/stories?page=${page}&size=${size}&favorite=${favoriteOnly}`,
+      options,
+    ),
   setFavorite: (storyId: number, favorite: boolean) =>
     api.put<{ id: number; favorite: boolean }>(`/api/v1/stories/${storyId}/favorite`, { favorite }),
   retryAudio: (storyId: number) =>

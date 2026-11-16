@@ -1,0 +1,68 @@
+<view class="edit">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="top-title t-secondary">人生档案</text>
+    <text class="save t-accent {{saving ? 'is-saving' : ''}}" bindtap="onSave">{{saving ? '保存中' : '保存'}}</text>
+  </view>
+
+  <text class="q-sub t-tertiary">修改只影响之后生成的故事，已生成的故事不会变</text>
+
+  <!-- 昵称 -->
+  <view class="field">
+    <text class="field-label t-label">昵称</text>
+    <input class="field-input" value="{{displayName}}" maxlength="30" bindinput="onNameInput" />
+  </view>
+
+  <!-- 关注领域（1~5） -->
+  <view class="field">
+    <text class="field-label t-label">关注领域（1~5 个）</text>
+    <view class="chips">
+      <pill-chip
+        wx:for="{{focusOptions}}"
+        wx:key="*this"
+        label="{{item}}"
+        selected="{{focusAreas.indexOf(item) > -1}}"
+        bind:tap="onToggleFocus"
+        data-area="{{item}}"
+      />
+    </view>
+  </view>
+
+  <!-- 当前生活 -->
+  <view class="field">
+    <text class="field-label t-label">当前生活（0~1000 字）</text>
+    <textarea
+      class="field-textarea"
+      value="{{currentSituation}}"
+      maxlength="1000"
+      placeholder="现在的生活是什么样子？"
+      placeholder-class="field-placeholder"
+      bindinput="onSituationInput"
+    ></textarea>
+  </view>
+
+  <!-- 重要人物（0~8） -->
+  <view class="field">
+    <text class="field-label t-label">重要人物（0~8 位）</text>
+    <view wx:for="{{importantPeople}}" wx:key="index" class="person">
+      <text class="person-name">{{item.name}} · {{item.relation}}</text>
+      <text class="person-remove" catchtap="onRemovePerson" data-index="{{index}}">移除</text>
+    </view>
+    <view wx:if="{{adding}}" class="person-form">
+      <input class="form-input" placeholder="称呼（如：阿澄）" value="{{form.name}}" maxlength="40" bindinput="onFormInput" data-field="name" />
+      <input class="form-input" placeholder="关系（如：好友）" value="{{form.relation}}" maxlength="40" bindinput="onFormInput" data-field="relation" />
+      <input class="form-input" placeholder="补充说明（可不填）" value="{{form.note}}" maxlength="200" bindinput="onFormInput" data-field="note" />
+      <view class="person-actions">
+        <text class="link t-secondary" bindtap="onCancelAdd">取消</text>
+        <text class="link t-accent" bindtap="onConfirmAdd">保存</text>
+      </view>
+    </view>
+    <view wx:else class="add-person" hover-class="add-pressed" bindtap="onStartAdd">
+      <text class="add-text">+ 添加一位重要的人</text>
+    </view>
+  </view>
+
+  <view class="bottom-area">
+    <primary-button text="保存档案" loading="{{saving}}" disabled="{{saving}}" bind:tap="onSave" />
+  </view>
+</view>

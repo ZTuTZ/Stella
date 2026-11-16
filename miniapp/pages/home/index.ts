@@ -149,7 +149,7 @@ Page({
   },
 
   onViewAll() {
-    wx.showToast({ title: "故事库在内测中开放", icon: "none" });
+    wx.navigateTo({ url: "/pages/story/list/index" });
   },
 
   // —— Affirmation 叠卡（右滑收藏 / 左滑下一条，按钮兜底）——
@@ -179,7 +179,7 @@ Page({
   },
 
   onLibrary() {
-    wx.showToast({ title: "故事库在内测中开放", icon: "none" });
+    wx.navigateTo({ url: "/pages/story/list/index" });
   },
 
   onHistory() {

@@ -1,0 +1,87 @@
+/* profile/edit — 人生档案编辑：简洁表单（Profile 页不做沉浸，§41.6.9） */
+.edit {
+  min-height: 100vh;
+  padding: 48rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.back { font-size: 40rpx; color: var(--color-text); padding: 8rpx 16rpx 8rpx 0; }
+.top-title { font-size: 26rpx; }
+.save { font-size: 28rpx; font-weight: 500; padding: 8rpx; }
+.save.is-saving { opacity: 0.5; }
+
+.q-sub { display: block; margin-top: 16rpx; }
+
+.field { margin-top: 48rpx; }
+.field-label { display: block; margin-bottom: 20rpx; }
+
+.field-input {
+  padding: 28rpx 32rpx;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: 28rpx;
+  color: var(--color-text);
+}
+
+.field-textarea {
+  width: 100%;
+  height: 280rpx;
+  padding: 28rpx 32rpx;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: var(--color-text);
+  box-sizing: border-box;
+}
+.field-placeholder { color: var(--color-text-tertiary); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 16rpx; }
+
+.person {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  padding: 24rpx 32rpx;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.person-name { font-size: 26rpx; color: var(--color-text); }
+.person-remove { font-size: 24rpx; color: var(--color-text-tertiary); }
+
+.person-form {
+  padding: 28rpx;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.form-input {
+  height: 84rpx;
+  font-size: 28rpx;
+  color: var(--color-text);
+  border-bottom: 1rpx solid var(--color-line);
+}
+.person-actions { display: flex; justify-content: flex-end; gap: 40rpx; margin-top: 24rpx; }
+.link { padding: 8rpx 16rpx; }
+
+.add-person {
+  height: 88rpx;
+  border-radius: var(--radius-md);
+  border: 1rpx dashed var(--color-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-pressed { opacity: 0.7; }
+.add-text { font-size: 26rpx; color: var(--color-text-secondary); }
+
+.bottom-area { margin-top: 72rpx; }

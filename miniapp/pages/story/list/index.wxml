@@ -1,0 +1,50 @@
+<view class="library">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+  </view>
+
+  <text class="page-title t-page-title">我的未来</text>
+
+  <!-- 全部 / 收藏 轻量筛选（§41.6.7） -->
+  <view class="filters">
+    <text
+      class="filter {{favoriteOnly ? '' : 'is-active'}}"
+      bindtap="onFilterAll"
+    >全部</text>
+    <text class="filter-divider">·</text>
+    <text
+      class="filter {{favoriteOnly ? 'is-active' : ''}}"
+      bindtap="onFilterFavorite"
+    >收藏</text>
+  </view>
+
+  <!-- 两列卡片网格 -->
+  <view wx:if="{{items.length > 0}}" class="grid">
+    <view wx:for="{{items}}" wx:key="id" class="grid-item">
+      <story-card
+        title="{{item.title}}"
+        tone="{{item.tone}}"
+        showPlay="{{true}}"
+        showFavorite="{{true}}"
+        favorite="{{item.favorite}}"
+        bind:tap="onStoryTap"
+        data-id="{{item.id}}"
+        bind:favorite="onFavoriteTap"
+        data-id="{{item.id}}"
+      />
+    </view>
+  </view>
+
+  <!-- 空状态（empty-state 语义） -->
+  <view wx:elif="{{!loading}}" class="empty anim-fade-up">
+    <dream-orb size="{{140}}" />
+    <text class="empty-title">{{favoriteOnly ? '还没有收藏的故事' : '写下第一个愿望吧'}}</text>
+    <text class="empty-sub t-secondary">{{favoriteOnly ? '在故事页点 ♡ 就会出现在这里' : '你的未来故事会出现在这里'}}</text>
+    <view wx:if="{{!favoriteOnly}}" class="empty-action">
+      <primary-button text="创建一个新的未来" bind:tap="onCreate" />
+    </view>
+  </view>
+
+  <text wx:if="{{loadingMore}}" class="loading-more t-tertiary">正在加载更多…</text>
+  <text wx:if="{{!hasMore && items.length > 0}}" class="loading-more t-tertiary">— 就到这里 —</text>
+</view>
