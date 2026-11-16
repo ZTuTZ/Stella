@@ -1,0 +1,31 @@
+<view class="detail">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="ai-badge t-tertiary">AI 生成内容</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="center">
+    <dream-orb size="{{120}}" breathing="{{true}}" />
+  </view>
+
+  <view wx:elif="{{story}}" class="content anim-fade-up">
+    <text class="title">{{story.title}}</text>
+    <text class="summary t-secondary">{{story.summary}}</text>
+
+    <!-- 音频状态（UI Phase 3 升级为完整播放器） -->
+    <view wx:if="{{story.audio && story.audio.status === 'READY'}}" class="audio-hint">
+      <text class="audio-hint-text">🔊 音频已就绪 · 播放器即将上线</text>
+    </view>
+    <view wx:elif="{{story.audio && story.audio.status === 'FAILED'}}" class="audio-hint">
+      <text class="audio-hint-text">音频生成失败，可稍后在故事页重试</text>
+    </view>
+
+    <view class="body">
+      <text wx:for="{{paragraphs}}" wx:key="index" class="paragraph t-longform">{{item}}</text>
+    </view>
+  </view>
+
+  <view wx:else class="center">
+    <text class="t-secondary">故事不存在或已删除</text>
+  </view>
+</view>

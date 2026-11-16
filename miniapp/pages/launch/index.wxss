@@ -1,0 +1,27 @@
+/* launch — 未来人生杂志封面（§41.6.1）：禁止大量产品说明 */
+.launch {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 160rpx 64rpx 0;
+  box-sizing: border-box;
+}
+
+.hero {
+  margin-top: 96rpx;
+  text-align: center;
+}
+
+.sub {
+  margin-top: 28rpx;
+  text-align: center;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.bottom-area {
+  margin-top: auto;
+  width: 100%;
+  padding-bottom: calc(64rpx + env(safe-area-inset-bottom));
+}

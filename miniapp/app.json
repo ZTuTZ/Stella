@@ -1,6 +1,13 @@
 {
   "pages": [
+    "pages/launch/index",
     "pages/home/index",
+    "pages/onboarding/basic/index",
+    "pages/onboarding/context/index",
+    "pages/onboarding/goal/index",
+    "pages/onboarding/followup/index",
+    "pages/generation/progress/index",
+    "pages/story/detail/index",
     "pages/dev/design-system/index"
   ],
   "window": {

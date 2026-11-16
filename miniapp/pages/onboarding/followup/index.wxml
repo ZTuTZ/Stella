@@ -1,0 +1,50 @@
+<view class="ob">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="progress t-tertiary">6 / 6</text>
+  </view>
+
+  <!-- 加载问题 -->
+  <view wx:if="{{loading}}" class="center anim-fade-in">
+    <dream-orb size="{{120}}" breathing="{{true}}" />
+    <text class="center-text anim-soft-blink">我正在想想问什么…</text>
+  </view>
+
+  <!-- 0 个问题：直接开始生成 -->
+  <view wx:elif="{{questions.length === 0}}" class="q anim-fade-up">
+    <text class="question">你的信息已经足够了。</text>
+    <text class="q-sub t-secondary">我们直接开始写属于你的未来故事。</text>
+  </view>
+
+  <!-- 逐题对话 -->
+  <view wx:elif="{{current < questions.length}}" class="q anim-fade-up">
+    <dream-orb size="{{100}}" breathing="{{true}}" />
+    <text class="q-sub t-secondary">{{optionalHint}}</text>
+    <text class="question inline">{{questions[current].question}}</text>
+    <textarea
+      class="answer-textarea"
+      value="{{answers[current]}}"
+      placeholder="写下你的想法…"
+      placeholder-class="answer-placeholder"
+      maxlength="500"
+      bindinput="onAnswerInput"
+    ></textarea>
+    <text wx:if="{{questions[current].optional}}" class="skip-link t-tertiary" bindtap="onSkip">跳过这题 →</text>
+  </view>
+
+  <!-- 完成：确认生成 -->
+  <view wx:else class="q anim-fade-up">
+    <dream-orb size="{{140}}" breathing="{{true}}" />
+    <text class="question">好了，我准备好了。</text>
+    <text class="q-sub t-secondary">接下来我会把你刚刚说的，编进一个已经实现的未来里。</text>
+  </view>
+
+  <view class="bottom-area">
+    <primary-button
+      text="{{current < questions.length ? (current === questions.length - 1 ? '完成回答' : '下一题') : '生成我的未来'}}"
+      loading="{{submitting}}"
+      disabled="{{submitting || loading}}"
+      bind:tap="onNext"
+    />
+  </view>
+</view>

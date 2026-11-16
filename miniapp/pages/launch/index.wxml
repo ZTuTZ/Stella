@@ -1,0 +1,14 @@
+<view class="launch">
+  <dream-orb size="{{200}}" breathing="{{true}}" />
+  <text class="hero t-hero">遇见未来的自己</text>
+  <text class="sub t-secondary">把你想要的人生说给我听。\n我会把它写成一个已经发生的故事。</text>
+
+  <view class="bottom-area">
+    <primary-button
+      text="{{loading ? '正在进入…' : (hasSession ? '继续我的故事' : '开始我的故事')}}"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+      bind:tap="onStart"
+    />
+  </view>
+</view>

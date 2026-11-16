@@ -1,0 +1,48 @@
+<view class="ob">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="progress t-tertiary">{{progressText}}</text>
+  </view>
+
+  <!-- Step 1：昵称 -->
+  <view wx:if="{{step === 1}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">先认识一下</text>
+    <text class="question">你希望我怎么称呼你？</text>
+    <input
+      class="answer-input"
+      value="{{draft.displayName}}"
+      placeholder="比如：小雨"
+      placeholder-class="answer-placeholder"
+      maxlength="30"
+      bindinput="onNameInput"
+    />
+    <text wx:if="{{nameError}}" class="error t-tertiary">{{nameError}}</text>
+  </view>
+
+  <!-- Step 2：关注领域（多选 1~5） -->
+  <view wx:if="{{step === 2}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">选择你的关注领域</text>
+    <text class="question">最近你最想在哪些方面有所改变？</text>
+    <text class="q-sub t-secondary">选择 1~5 个</text>
+    <view class="chips">
+      <pill-chip
+        wx:for="{{focusOptions}}"
+        wx:key="*this"
+        label="{{item}}"
+        selected="{{draft.focusAreas.indexOf(item) > -1}}"
+        bind:tap="onToggleFocus"
+        data-area="{{item}}"
+      />
+    </view>
+    <text wx:if="{{focusError}}" class="error t-tertiary">{{focusError}}</text>
+  </view>
+
+  <view class="bottom-area">
+    <primary-button
+      text="{{step === 1 ? '继续' : '保存并继续'}}"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+      bind:tap="onNext"
+    />
+  </view>
+</view>

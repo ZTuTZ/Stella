@@ -1,0 +1,42 @@
+/* generation/progress — 生成中（§41.6.5）：不用系统 loading，Orb 呼吸 + 阶段文案 */
+.progress-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 64rpx;
+  box-sizing: border-box;
+}
+
+.center {
+  margin-top: 220rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.headline {
+  margin-top: 64rpx;
+  font-family: var(--font-serif);
+  font-size: 44rpx;
+  color: var(--color-text);
+}
+
+.sub {
+  margin-top: 24rpx;
+  text-align: center;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.actions {
+  margin-top: 64rpx;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32rpx;
+}
+
+.back-link { padding: 8rpx 24rpx; }

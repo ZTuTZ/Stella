@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "pill-chip": "/components/pill-chip/index",
+    "primary-button": "/components/primary-button/index"
+  }
+}

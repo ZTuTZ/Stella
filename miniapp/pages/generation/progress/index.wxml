@@ -1,0 +1,29 @@
+<view class="progress-page">
+  <!-- 生成中 / 轮询状态 -->
+  <view wx:if="{{state === 'running'}}" class="center anim-fade-in">
+    <dream-orb size="{{180}}" breathing="{{true}}" />
+    <text class="headline">{{stageText}}</text>
+    <text class="sub t-secondary">我正在把你刚刚说的细节\n编进一个属于你的故事。</text>
+  </view>
+
+  <!-- 失败：可重试 -->
+  <view wx:elif="{{state === 'failed'}}" class="center anim-fade-in">
+    <dream-orb size="{{140}}" />
+    <text class="headline">这次没有写完</text>
+    <text class="sub t-secondary">{{errorMessage}}</text>
+    <view class="actions">
+      <primary-button text="再试一次" loading="{{retrying}}" bind:tap="onRetry" />
+      <text class="back-link t-tertiary" bindtap="goHome">回到首页</text>
+    </view>
+  </view>
+
+  <!-- 内容被拦截 -->
+  <view wx:elif="{{state === 'blocked'}}" class="center anim-fade-in">
+    <dream-orb size="{{140}}" />
+    <text class="headline">这个愿望需要调整</text>
+    <text class="sub t-secondary">内容未通过安全检查，换个说法再试一次吧。</text>
+    <view class="actions">
+      <text class="back-link t-tertiary" bindtap="goHome">回到首页</text>
+    </view>
+  </view>
+</view>

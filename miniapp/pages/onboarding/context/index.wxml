@@ -1,0 +1,55 @@
+<view class="ob">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="progress t-tertiary">{{progressText}}</text>
+  </view>
+
+  <!-- Step 1：当前生活（可选） -->
+  <view wx:if="{{step === 1}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">可以跳过</text>
+    <text class="question">现在的生活是什么样子？</text>
+    <textarea
+      class="answer-textarea"
+      value="{{draft.currentSituation}}"
+      placeholder="比如：在设计公司做视觉，通勤两小时，想有自己的空间……"
+      placeholder-class="answer-placeholder"
+      maxlength="1000"
+      bindinput="onSituationInput"
+    ></textarea>
+    <text class="q-sub t-tertiary">{{draft.currentSituation.length}}/1000</text>
+  </view>
+
+  <!-- Step 2：重要人物（可跳过，0~8 人） -->
+  <view wx:if="{{step === 2}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">可以跳过，也可以稍后在「我的」里补充</text>
+    <text class="question">有哪些重要的人？</text>
+
+    <view wx:for="{{draft.importantPeople}}" wx:key="index" class="person">
+      <text class="person-name">{{item.name}} · {{item.relation}}</text>
+      <text class="person-remove" catchtap="onRemovePerson" data-index="{{index}}">移除</text>
+    </view>
+
+    <view wx:if="{{adding}}" class="person-form">
+      <input class="form-input" placeholder="称呼（如：阿澄）" value="{{form.name}}" maxlength="40" bindinput="onFormInput" data-field="name" />
+      <input class="form-input" placeholder="关系（如：好友）" value="{{form.relation}}" maxlength="40" bindinput="onFormInput" data-field="relation" />
+      <input class="form-input" placeholder="补充说明（可不填）" value="{{form.note}}" maxlength="200" bindinput="onFormInput" data-field="note" />
+      <view class="person-actions">
+        <text class="link t-secondary" bindtap="onCancelAdd">取消</text>
+        <text class="link t-accent" bindtap="onConfirmAdd">保存</text>
+      </view>
+    </view>
+
+    <view wx:else class="add-person" hover-class="add-pressed" bindtap="onStartAdd">
+      <text class="add-text">+ 添加一位重要的人</text>
+    </view>
+  </view>
+
+  <view class="bottom-area">
+    <primary-button
+      text="{{step === 1 ? (draft.currentSituation ? '继续' : '跳过') : '保存并继续'}}"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+      bind:tap="onNext"
+    />
+  </view>
+</view>

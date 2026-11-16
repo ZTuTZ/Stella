@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "dream-orb": "/components/dream-orb/index",
+    "primary-button": "/components/primary-button/index"
+  }
+}

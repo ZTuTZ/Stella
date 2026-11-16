@@ -1,0 +1,78 @@
+<view class="ob">
+  <view class="top">
+    <text class="back" bindtap="goBack">←</text>
+    <text class="progress t-tertiary">{{progressText}}</text>
+  </view>
+
+  <!-- Step 1：目标分类 -->
+  <view wx:if="{{step === 1}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">最想实现的事</text>
+    <text class="question">它属于哪个方向？</text>
+    <view class="chips">
+      <pill-chip
+        wx:for="{{categories}}"
+        wx:key="*this"
+        label="{{item}}"
+        selected="{{draft.goalCategory === item}}"
+        bind:tap="onPickCategory"
+        data-area="{{item}}"
+      />
+    </view>
+    <text wx:if="{{error}}" class="error t-tertiary">{{error}}</text>
+  </view>
+
+  <!-- Step 2：目标标题 -->
+  <view wx:if="{{step === 2}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">用一句话说出来</text>
+    <text class="question">你想要什么？</text>
+    <input
+      class="answer-input"
+      value="{{draft.goalTitle}}"
+      placeholder="比如：拥有一间自己的设计工作室"
+      placeholder-class="answer-placeholder"
+      maxlength="80"
+      bindinput="onTitleInput"
+    />
+    <text class="q-sub t-tertiary">{{draft.goalTitle.length}}/80（2~80 字）</text>
+    <text wx:if="{{error}}" class="error t-tertiary">{{error}}</text>
+  </view>
+
+  <!-- Step 3：目标描述 -->
+  <view wx:if="{{step === 3}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">细节越多，故事越像你</text>
+    <text class="question">多说说它实现后的样子</text>
+    <textarea
+      class="answer-textarea"
+      value="{{draft.goalDescription}}"
+      placeholder="比如：一年后开一间小而稳的设计工作室，收入更稳定，有更多自由时间……"
+      placeholder-class="answer-placeholder"
+      maxlength="1200"
+      bindinput="onDescriptionInput"
+    ></textarea>
+    <text class="q-sub t-tertiary">{{draft.goalDescription.length}}/1200（10~1200 字）</text>
+    <text wx:if="{{error}}" class="error t-tertiary">{{error}}</text>
+  </view>
+
+  <!-- Step 4：期望时间（可跳过） -->
+  <view wx:if="{{step === 4}}" class="q anim-fade-up">
+    <text class="hint t-tertiary">可以跳过</text>
+    <text class="question">希望在什么时候实现？</text>
+    <input
+      class="answer-input"
+      value="{{draft.targetTimeText}}"
+      placeholder="比如：一年后 / 2027 年底前"
+      placeholder-class="answer-placeholder"
+      maxlength="120"
+      bindinput="onTimeInput"
+    />
+  </view>
+
+  <view class="bottom-area">
+    <primary-button
+      text="{{step === 4 ? '生成我的未来' : '继续'}}"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+      bind:tap="onNext"
+    />
+  </view>
+</view>
