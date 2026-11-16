@@ -39,6 +39,7 @@ PENDING → TEXT_GENERATING → TEXT_MODERATING → TEXT_READY
 | 版本 | 文件 | 内容 | 状态 |
 |---|---|---|---|
 | V1 | `V1__init_schema.sql` | 全部 11 张核心表（含 user_event）+ 全部索引 | ✅ 已应用 |
+| V2 | `V2__seed_prompts.sql` | FOLLOWUP/STORY/AFFIRMATION v1 seed | ✅ 已应用 |
 
 ## 设计决策
 

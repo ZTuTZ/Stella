@@ -1,0 +1,270 @@
+package com.futureself.goal;
+
+import com.futureself.ai.AiCallLogService;
+import com.futureself.ai.PromptTemplateService;
+import com.futureself.ai.domain.AiCallLog;
+import com.futureself.ai.domain.PromptTemplate;
+import com.futureself.ai.text.OpenAiCompatibleTextAiProvider;
+import com.futureself.ai.text.PromptFiller;
+import com.futureself.ai.text.TextAiProvider;
+import com.futureself.ai.text.TextAiRequest;
+import com.futureself.common.error.BusinessException;
+import com.futureself.common.logging.RequestIdFilter;
+import com.futureself.config.AppTextAiProperties;
+import com.futureself.goal.api.FollowupAnswersRequest;
+import com.futureself.goal.api.FollowupQuestionsResponse;
+import com.futureself.goal.domain.GoalRepository;
+import com.futureself.goal.domain.ManifestationGoal;
+import com.futureself.profile.ProfileService;
+import com.futureself.profile.api.ImportantPerson;
+import com.futureself.profile.api.LifeProfileResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * AI 追问（实施文档 §5.2 步骤 D / §12.3 / §14.1）。
+ * 组装用户上下文（§33：空字段不发、限长、无技术标识）→ 模板填充 →
+ * TextAiProvider 结构化生成（0~3 题）→ 记录 ai_call_log → 问题/答案存 details_json。
+ */
+@Service
+public class FollowupService {
+
+    private static final Logger log = LoggerFactory.getLogger(FollowupService.class);
+    private static final int MAX_QUESTIONS = 3;
+    private static final int CONTEXT_FIELD_LIMIT = 600;
+
+    /** LLM 结构化输出（§14.1）。 */
+    public record FollowupQuestionResult(String id, String question, String reason, Boolean optional) {
+    }
+
+    public record FollowupQuestionsResult(List<FollowupQuestionResult> questions) {
+    }
+
+    private final GoalService goalService;
+    private final GoalRepository goalRepository;
+    private final ProfileService profileService;
+    private final PromptTemplateService promptTemplateService;
+    private final TextAiProvider textAiProvider;
+    private final AiCallLogService aiCallLogService;
+    private final AppTextAiProperties textAiProps;
+
+    public FollowupService(GoalService goalService,
+                           GoalRepository goalRepository,
+                           ProfileService profileService,
+                           PromptTemplateService promptTemplateService,
+                           TextAiProvider textAiProvider,
+                           AiCallLogService aiCallLogService,
+                           AppTextAiProperties textAiProps) {
+        this.goalService = goalService;
+        this.goalRepository = goalRepository;
+        this.profileService = profileService;
+        this.promptTemplateService = promptTemplateService;
+        this.textAiProvider = textAiProvider;
+        this.aiCallLogService = aiCallLogService;
+        this.textAiProps = textAiProps;
+    }
+
+    @Transactional
+    public FollowupQuestionsResponse generateQuestions(long goalId, long userId) {
+        ManifestationGoal goal = goalService.loadOwnGoal(goalId, userId);
+        LifeProfileResponse profile = profileService.getProfile(userId);
+
+        PromptTemplate template = promptTemplateService.getEnabled(PromptTemplate.KEY_FOLLOWUP);
+        Map<String, String> placeholders = buildPlaceholders(profile, goal);
+        String userPrompt = PromptFiller.fill(template.getUserTemplate(), placeholders);
+
+        TextAiRequest request = new TextAiRequest(
+                PromptTemplate.KEY_FOLLOWUP,
+                template.getSystemPrompt(),
+                userPrompt,
+                template.getOutputSchemaJson(),
+                0.5,
+                800,
+                currentRequestId());
+
+        long startedAt = System.currentTimeMillis();
+        FollowupQuestionsResult result;
+        try {
+            result = textAiProvider.generateStructured(request, FollowupQuestionsResult.class);
+        } catch (BusinessException e) {
+            recordAiCall(userId, null, request, startedAt, false, e.errorCode().name(), e.getMessage());
+            throw e;
+        }
+        recordAiCall(userId, null, request, startedAt, true, null, null);
+
+        List<FollowupQuestionResult> normalized = normalize(result == null ? null : result.questions());
+        persistQuestions(goal, normalized);
+        log.info("followup questions generated: goalId={} count={}", goalId, normalized.size());
+
+        return new FollowupQuestionsResponse(normalized.stream()
+                .map(q -> new FollowupQuestionsResponse.QuestionItem(
+                        q.id(), q.question(), "TEXT", q.optional() == null || q.optional()))
+                .toList());
+    }
+
+    @Transactional
+    public com.futureself.goal.api.GoalResponse saveAnswers(long goalId, long userId, FollowupAnswersRequest request) {
+        ManifestationGoal goal = goalService.loadOwnGoal(goalId, userId);
+        Map<String, Object> details = new LinkedHashMap<>(JsonSupport.parseObject(goal.getDetailsJson()));
+
+        List<Map<String, String>> answers = new ArrayList<>();
+        if (request.answers() != null) {
+            for (FollowupAnswersRequest.AnswerItem item : request.answers()) {
+                answers.add(Map.of(
+                        "questionId", item.questionId(),
+                        "answer", item.answer() == null ? "" : item.answer()));
+            }
+        }
+        details.put("answers", answers);
+        goal.setDetailsJson(JsonSupport.write(details));
+        return goalService.toResponse(goalRepository.save(goal));
+    }
+
+    /** 校验/规整模型输出：去空、限 3 题、补 id（q1..qn）、optional 默认 true。 */
+    private List<FollowupQuestionResult> normalize(List<FollowupQuestionResult> questions) {
+        List<FollowupQuestionResult> cleaned = new ArrayList<>();
+        if (questions != null) {
+            for (FollowupQuestionResult q : questions) {
+                if (q == null || q.question() == null || q.question().isBlank()) {
+                    continue;
+                }
+                cleaned.add(q);
+                if (cleaned.size() == MAX_QUESTIONS) {
+                    break;
+                }
+            }
+        }
+        List<FollowupQuestionResult> result = new ArrayList<>();
+        for (int i = 0; i < cleaned.size(); i++) {
+            FollowupQuestionResult q = cleaned.get(i);
+            String id = (q.id() == null || q.id().isBlank()) ? "q" + (i + 1) : q.id();
+            result.add(new FollowupQuestionResult(id, q.question().trim(), q.reason(), q.optional()));
+        }
+        return result;
+    }
+
+    private void persistQuestions(ManifestationGoal goal, List<FollowupQuestionResult> questions) {
+        Map<String, Object> details = new LinkedHashMap<>(JsonSupport.parseObject(goal.getDetailsJson()));
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (FollowupQuestionResult q : questions) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", q.id());
+            item.put("question", q.question());
+            item.put("reason", q.reason());
+            item.put("optional", q.optional() == null || q.optional());
+            list.add(item);
+        }
+        details.put("questions", list);
+        goal.setDetailsJson(JsonSupport.write(details));
+        goalRepository.save(goal);
+    }
+
+    /** §33：空字段不发送；限长；不含 openid/userId 等技术标识。 */
+    private Map<String, String> buildPlaceholders(LifeProfileResponse profile, ManifestationGoal goal) {
+        Map<String, String> p = new LinkedHashMap<>();
+        p.put("currentSituation", PromptFiller.truncate(profile.currentSituation(), CONTEXT_FIELD_LIMIT));
+        p.put("focusAreas", joinOrEmpty(profile.focusAreas()));
+        p.put("importantPeople", joinPeopleOrEmpty(profile.importantPeople()));
+        p.put("preferences", PromptFiller.truncate(joinPreferences(profile.preferences()), CONTEXT_FIELD_LIMIT));
+        p.put("goalCategory", orEmpty(goal.getCategory()));
+        p.put("goalTitle", orEmpty(goal.getTitle()));
+        p.put("goalDescription", PromptFiller.truncate(goal.getDescription(), 1200));
+        p.put("targetTimeText", orEmpty(goal.getTargetTimeText()));
+        return p;
+    }
+
+    private String joinOrEmpty(List<String> items) {
+        return items == null || items.isEmpty() ? "" : String.join("、", items);
+    }
+
+    private String joinPeopleOrEmpty(List<ImportantPerson> people) {
+        if (people == null || people.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (ImportantPerson person : people) {
+            if (!sb.isEmpty()) {
+                sb.append("；");
+            }
+            sb.append(person.name()).append("（").append(person.relation()).append("）");
+            if (person.note() != null && !person.note().isBlank()) {
+                sb.append("：").append(PromptFiller.truncate(person.note(), 60));
+            }
+        }
+        return sb.toString();
+    }
+
+    private String joinPreferences(Map<String, String> preferences) {
+        if (preferences == null || preferences.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : preferences.entrySet()) {
+            if (!sb.isEmpty()) {
+                sb.append("；");
+            }
+            sb.append(entry.getKey()).append("：").append(entry.getValue());
+        }
+        return sb.toString();
+    }
+
+    private String orEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String currentRequestId() {
+        String requestId = MDC.get(RequestIdFilter.MDC_KEY);
+        return requestId == null ? "" : requestId;
+    }
+
+    private void recordAiCall(long userId, Long taskId, TextAiRequest request,
+                              long startedAt, boolean success, String errorCode, String errorMessage) {
+        long latency = System.currentTimeMillis() - startedAt;
+        Integer[] usage = pollUsageOrNull();
+        aiCallLogService.record(new AiCallLogService.CallRecord(
+                currentRequestId(),
+                userId,
+                taskId,
+                AiCallLog.TYPE_TEXT,
+                textAiProvider.providerName(),
+                textAiProps.model(),
+                request.operation(),
+                latency,
+                success,
+                usage == null ? null : usage[0],
+                usage == null ? null : usage[1],
+                errorCode,
+                errorMessage,
+                requestSummary(request),
+                null));
+    }
+
+    /** OpenAI-compatible provider 会把 usage 放入 ThreadLocal；mock 无 usage。 */
+    private Integer[] pollUsageOrNull() {
+        int[] raw = OpenAiCompatibleTextAiProvider.UsageHolder.poll();
+        if (raw == null || raw[0] < 0) {
+            return null;
+        }
+        return new Integer[]{raw[0], raw[1]};
+    }
+
+    /** 脱敏请求摘要：只存 prompt 前 200 字符（§23）。 */
+    private String requestSummary(TextAiRequest request) {
+        try {
+            return JsonSupport.write(Map.of(
+                    "operation", orEmpty(request.operation()),
+                    "systemPrompt", PromptFiller.truncate(request.systemPrompt(), 200),
+                    "userPrompt", PromptFiller.truncate(request.userPrompt(), 200)));
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+}

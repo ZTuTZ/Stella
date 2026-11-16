@@ -38,7 +38,12 @@ class AuthFlowIntegrationTest {
     private record Login(long userId, String token) {
     }
 
-    private Login login(String code) throws Exception {
+    private Login login(String base) throws Exception {
+        // mock openid 按 code 确定性生成且测试库跨 run 持久化，故每个用例用唯一 code
+        return loginWithCode(base + "-" + java.util.UUID.randomUUID().toString().substring(0, 8));
+    }
+
+    private Login loginWithCode(String code) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/v1/auth/wechat/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"" + code + "\"}"))
@@ -57,11 +62,12 @@ class AuthFlowIntegrationTest {
 
     @Test
     void mockLoginCreatesUserAndRecognizesSameUser() throws Exception {
-        Login first = login("integration-code-001");
-        Login second = login("integration-code-001");
+        String code = "same-user-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        Login first = loginWithCode(code);
+        Login second = loginWithCode(code);
         assertThat(second.userId()).isEqualTo(first.userId());
 
-        Login other = login("integration-code-002");
+        Login other = loginWithCode("other-user-" + java.util.UUID.randomUUID().toString().substring(0, 8));
         assertThat(other.userId()).isNotEqualTo(first.userId());
     }
 
@@ -82,7 +88,7 @@ class AuthFlowIntegrationTest {
 
     @Test
     void meReturnsUserAndSupportsDisplayNameUpdate() throws Exception {
-        Login login = login("me-flow-code");
+        Login login = login("me-flow");
         mockMvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + login.token()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.displayName").value("微信用户"))
@@ -105,7 +111,7 @@ class AuthFlowIntegrationTest {
 
     @Test
     void profileRoundtripIncrementsVersion() throws Exception {
-        Login login = login("profile-flow-code");
+        Login login = login("profile-flow");
         String auth = "Bearer " + login.token();
 
         mockMvc.perform(get("/api/v1/me/life-profile").header("Authorization", auth))
@@ -138,7 +144,7 @@ class AuthFlowIntegrationTest {
 
     @Test
     void profileValidationFailures() throws Exception {
-        Login login = login("profile-invalid-code");
+        Login login = login("profile-invalid");
         String auth = "Bearer " + login.token();
 
         mockMvc.perform(put("/api/v1/me/life-profile").header("Authorization", auth)
@@ -171,7 +177,8 @@ class AuthFlowIntegrationTest {
 
     @Test
     void onboardingCompletePersistsAcrossLogins() throws Exception {
-        Login login = login("onboarding-flow-code");
+        String code = "onboarding-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        Login login = loginWithCode(code);
         mockMvc.perform(post("/api/v1/me/onboarding/complete").header("Authorization", "Bearer " + login.token()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.onboardingCompleted").value(true));
@@ -183,7 +190,7 @@ class AuthFlowIntegrationTest {
         // 再次登录（同一用户）返回已完成 onboarding → 前端据此直接进首页
         MvcResult result = mockMvc.perform(post("/api/v1/auth/wechat/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"code\":\"onboarding-flow-code\"}"))
+                        .content("{\"code\":\"" + code + "\"}"))
                 .andExpect(status().isOk())
                 .andReturn();
         Boolean completed = com.jayway.jsonpath.JsonPath.read(
@@ -193,8 +200,8 @@ class AuthFlowIntegrationTest {
 
     @Test
     void profilesAreIsolatedPerUser() throws Exception {
-        Login userA = login("isolation-code-a");
-        Login userB = login("isolation-code-b");
+        Login userA = login("isolation-a");
+        Login userB = login("isolation-b");
 
         mockMvc.perform(put("/api/v1/me/life-profile")
                         .header("Authorization", "Bearer " + userA.token())
@@ -218,7 +225,7 @@ class AuthFlowIntegrationTest {
 
     @Test
     void disabledUserRejectedWith403() throws Exception {
-        Login login = login("disabled-code");
+        Login login = login("disabled");
         AppUser user = userRepository.findById(login.userId()).orElseThrow();
         user.setStatus("DISABLED");
         userRepository.save(user);

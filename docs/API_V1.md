@@ -36,10 +36,10 @@
 ### Goals
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| POST / GET | `/api/v1/goals` | 创建 / 列表 | 计划 Phase 3 |
-| GET / PATCH / DELETE | `/api/v1/goals/{id}` | 详情 / 修改 / 删除 | 计划 Phase 3 |
-| POST | `/api/v1/goals/{id}/followup-questions` | AI 追问 | 计划 Phase 3 |
-| PUT | `/api/v1/goals/{id}/followup-answers` | 保存回答 | 计划 Phase 3 |
+| POST / GET | `/api/v1/goals` | 创建（分类/标题2~80/描述10~1200）/ 列表 | ✅ Phase 3 |
+| GET / PATCH / DELETE | `/api/v1/goals/{id}` | 详情 / 修改 / 软删除（越权一律 404） | ✅ Phase 3 |
+| POST | `/api/v1/goals/{id}/followup-questions` | AI 追问（0~3 题，mock/openai 可切） | ✅ Phase 3 |
+| PUT | `/api/v1/goals/{id}/followup-answers` | 保存回答 → details_json | ✅ Phase 3 |
 
 ### Generation
 | 方法 | 路径 | 说明 | 状态 |
