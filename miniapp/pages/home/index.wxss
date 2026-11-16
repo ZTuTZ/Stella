@@ -44,4 +44,13 @@
   padding: 24rpx;
   font-size: 24rpx;
   color: var(--color-text-tertiary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.dev-link {
+  color: var(--color-accent);
+  font-size: 24rpx;
 }

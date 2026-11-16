@@ -1,0 +1,42 @@
+/* primary-button — 主按钮（§41.5.9）：深炭黑胶囊，不用亮蓝 */
+.btn {
+  height: 92rpx;
+  padding: 0 64rpx;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  line-height: 92rpx;
+}
+
+.btn::after { border: none; }
+
+.btn-text {
+  color: #FFF9F6;
+  font-size: 30rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+}
+
+/* 按下：缩放 0.985 + 透明度 0.9（§41.5.9） */
+.btn-pressed {
+  transform: scale(0.985);
+  opacity: 0.9;
+}
+
+.btn.is-disabled {
+  opacity: 0.4;
+}
+
+.btn.is-loading { opacity: 0.9; }
+
+.spinner {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 249, 246, 0.35);
+  border-top-color: #FFF9F6;
+}

@@ -1,0 +1,17 @@
+<view class="stack">
+  <!-- 下方两层伪卡片（叠纸效果，§41.5.6） -->
+  <view class="layer layer-2"></view>
+  <view class="layer layer-1"></view>
+
+  <view class="card" hover-class="card-pressed" bindtap="onTap">
+    <view wx:if="{{showActions}}" class="action action-left" catchtap="onFavorite">
+      <text class="heart {{favorite ? 'is-favorite' : ''}}">{{favorite ? '♥' : '♡'}}</text>
+    </view>
+    <view wx:if="{{showActions}}" class="action action-right" catchtap="onMore">
+      <text class="more">⋯</text>
+    </view>
+
+    <text class="text">{{text}}</text>
+    <text class="footer">{{footerLabel}}</text>
+  </view>
+</view>

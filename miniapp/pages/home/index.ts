@@ -4,4 +4,7 @@
  */
 Page({
   data: {},
+  goDesignSystem() {
+    wx.navigateTo({ url: "/pages/dev/design-system/index" });
+  },
 })

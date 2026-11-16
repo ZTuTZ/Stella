@@ -1,0 +1,76 @@
+/**
+ * 排版工具类 — 实施文档 §41.3.2。
+ * 标题用衬线（--font-serif），正文系统无衬线；衬线标题字重 400~500，不用 700。
+ * 字号层级：Hero 56~68 / 页面 42~48 / 卡片 32~38 / 正文 28~30 / 辅助 24~26 / 标签 22~24。
+ */
+
+/* —— Hero / 大标题（衬线）—— */
+.t-hero {
+  font-family: var(--font-serif);
+  font-size: 60rpx;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+/* —— 页面标题（衬线）—— */
+.t-page-title {
+  font-family: var(--font-serif);
+  font-size: 44rpx;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+/* —— 卡片标题（衬线，白字/深字均可叠加 .t-light）—— */
+.t-card-title {
+  font-family: var(--font-serif);
+  font-size: 34rpx;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+/* —— 正文 —— */
+.t-body {
+  font-size: 28rpx;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* —— 次级 / 提示 —— */
+.t-secondary {
+  font-size: 26rpx;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.t-tertiary {
+  font-size: 24rpx;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-text-tertiary);
+}
+
+/* —— 标签（500）—— */
+.t-label {
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-text-secondary);
+}
+
+/* —— 修饰 —— */
+.t-light { color: #FFF9F6; }             /* 图片/深色底上的文字 */
+.t-accent { color: var(--color-accent); } /* 少量高对比蓝：链接/强调 */
+.t-center { text-align: center; }
+
+/* —— 长文正文（故事全文 30/1.7，§41.6.6）—— */
+.t-longform {
+  font-size: 30rpx;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--color-text);
+}

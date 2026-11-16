@@ -6,5 +6,6 @@
   </view>
   <view class="placeholder">
     <text>Phase 0 骨架首页 · 业务与视觉在后续阶段实现</text>
+    <text class="dev-link" bindtap="goDesignSystem">DEV · 打开设计系统 →</text>
   </view>
 </view>

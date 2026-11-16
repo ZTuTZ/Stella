@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "dream-orb": "/components/dream-orb/index",
+    "primary-button": "/components/primary-button/index",
+    "pill-chip": "/components/pill-chip/index",
+    "manifest-input": "/components/manifest-input/index",
+    "story-card": "/components/story-card/index",
+    "affirmation-card": "/components/affirmation-card/index",
+    "audio-player": "/components/audio-player/index"
+  }
+}

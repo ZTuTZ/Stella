@@ -1,0 +1,4 @@
+<view
+  class="orb {{breathing ? 'anim-orb-breath' : ''}}"
+  style="width:{{size}}rpx;height:{{size}}rpx"
+></view>

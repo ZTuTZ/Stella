@@ -1,0 +1,10 @@
+<button
+  class="btn {{loading ? 'is-loading' : ''}} {{disabled ? 'is-disabled' : ''}}"
+  hover-class="{{disabled || loading ? '' : 'btn-pressed'}}"
+  hover-stay-time="80"
+  bindtap="onTap"
+  disabled="{{disabled || loading}}"
+>
+  <view wx:if="{{loading}}" class="spinner anim-spinner"></view>
+  <text wx:else class="btn-text">{{text}}</text>
+</button>

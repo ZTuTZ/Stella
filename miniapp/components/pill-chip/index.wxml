@@ -1,0 +1,7 @@
+<view
+  class="chip {{selected ? 'is-selected' : ''}} {{small ? 'is-small' : ''}}"
+  hover-class="chip-pressed"
+  bindtap="onTap"
+>
+  <text class="chip-text">{{label}}</text>
+</view>

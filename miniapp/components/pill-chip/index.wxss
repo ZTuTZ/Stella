@@ -1,0 +1,28 @@
+/* pill-chip — 胶囊选项（§41.5.3 / §41.6.2）：浅透明底 + 1rpx 低对比描边 */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 60rpx;
+  padding: 0 30rpx;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 249, 246, 0.5);
+  border: 1rpx solid var(--color-line);
+  transition: background 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.chip.is-small { height: 52rpx; padding: 0 24rpx; }
+
+.chip-text {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* 选中：软粉底 + 深字 */
+.chip.is-selected {
+  background: var(--color-surface-pink);
+  border-color: rgba(200, 93, 114, 0.35);
+}
+.chip.is-selected .chip-text { color: var(--color-text); }
+
+.chip-pressed { transform: scale(0.97); opacity: 0.9; }

@@ -1,0 +1,141 @@
+/* audio-player — 沉浸式播放器（§41.6.6）：不像系统默认 audio */
+.player {
+  padding: 40rpx 40rpx 24rpx;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.player-title {
+  font-family: var(--font-serif);
+  font-size: 34rpx;
+  color: var(--color-text);
+}
+
+.player-ai {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--color-text-tertiary);
+}
+
+/* —— 生成中 —— */
+.state-generating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 0 32rpx;
+}
+.generating-text {
+  margin-top: 32rpx;
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+}
+
+/* —— 失败 —— */
+.state-failed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 0 32rpx;
+}
+.failed-text { font-size: 26rpx; color: var(--color-text-secondary); }
+.retry {
+  margin-top: 24rpx;
+  height: 64rpx;
+  padding: 0 48rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-btn);
+  display: flex;
+  align-items: center;
+}
+.retry-pressed { transform: scale(0.97); opacity: 0.9; }
+.retry-text { color: #FFF9F6; font-size: 26rpx; }
+
+/* —— 进度条：细 6rpx，拖动点 20rpx —— */
+.progress-row {
+  display: flex;
+  align-items: center;
+  margin-top: 44rpx;
+}
+.time {
+  font-size: 24rpx;
+  color: var(--color-text-tertiary);
+  width: 90rpx;
+}
+.time:first-child { text-align: left; }
+.time:last-child { text-align: right; }
+
+.track {
+  position: relative;
+  flex: 1;
+  height: 6rpx;
+  border-radius: var(--radius-pill);
+  background: rgba(30, 26, 28, 0.12);
+}
+.track-fill {
+  height: 6rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-btn);
+}
+.track-dot {
+  position: absolute;
+  top: 50%;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: var(--color-primary-btn);
+  transform: translate(-50%, -50%);
+}
+
+/* —— 控件 —— */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40rpx;
+}
+.skip {
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+  width: 120rpx;
+  text-align: center;
+}
+.skip-pressed { opacity: 0.6; }
+
+.play {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: var(--color-primary-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 48rpx;
+  box-shadow: var(--shadow-floating);
+}
+.play-pressed { transform: scale(0.96); }
+.play-icon { color: #FFF9F6; font-size: 34rpx; line-height: 1; }
+
+/* —— 环境音 chips —— */
+.ambience {
+  margin-top: 36rpx;
+  white-space: nowrap;
+  width: 100%;
+}
+.ambience-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 56rpx;
+  padding: 0 26rpx;
+  margin-right: 16rpx;
+  border-radius: var(--radius-pill);
+  border: 1rpx solid var(--color-line);
+  background: rgba(255, 249, 246, 0.6);
+}
+.ambience-chip.is-selected {
+  background: var(--color-surface-lilac);
+  border-color: rgba(72, 60, 100, 0.25);
+}
+.chip-pressed { transform: scale(0.97); }
+.ambience-text { font-size: 24rpx; color: var(--color-text-secondary); }

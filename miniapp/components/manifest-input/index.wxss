@@ -1,0 +1,46 @@
+/* manifest-input — 首页核心交互（§41.5.2）：胶囊输入 + 深色圆形发送钮 */
+.manifest {
+  display: flex;
+  align-items: center;
+  height: 96rpx;
+  padding: 0 16rpx 0 36rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.18s ease-out;
+}
+
+/* 聚焦：仅轻微提升阴影，无高饱和描边（§41.5.2） */
+.manifest.is-focused { box-shadow: var(--shadow-floating); }
+
+.manifest-input {
+  flex: 1;
+  height: 96rpx;
+  font-size: 28rpx;
+  color: var(--color-text);
+}
+
+.manifest-placeholder {
+  color: var(--color-text-tertiary);
+  font-size: 26rpx;
+}
+
+.submit {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: var(--color-primary-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.submit-icon {
+  color: #FFF9F6;
+  font-size: 30rpx;
+  line-height: 1;
+}
+
+.submit.is-empty { opacity: 0.35; }
+.submit-pressed { transform: scale(0.92); }

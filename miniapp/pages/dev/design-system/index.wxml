@@ -1,0 +1,100 @@
+<view wx:if="{{devOnly}}" class="page">
+  <text class="dev-banner">DEV · 设计系统一览（仅开发预览可见）</text>
+
+  <!-- Dream Orb -->
+  <view class="section">
+    <text class="section-title">Dream Orb</text>
+    <view class="row">
+      <dream-orb size="{{120}}" />
+      <dream-orb size="{{160}}" />
+      <dream-orb size="{{200}}" breathing="{{true}}" />
+    </view>
+    <text class="state-note">default / breathing（生成中）</text>
+  </view>
+
+  <!-- Primary Button -->
+  <view class="section">
+    <text class="section-title">Primary Button</text>
+    <view class="col">
+      <primary-button text="开始我的故事" bind:tap="noop" />
+      <primary-button text="生成中…" loading="{{true}}" bind:tap="noop" />
+      <primary-button text="不可用" disabled="{{true}}" bind:tap="noop" />
+    </view>
+    <text class="state-note">default / loading / disabled（按下缩放 0.985 请真机体验）</text>
+  </view>
+
+  <!-- Pill Chip -->
+  <view class="section">
+    <text class="section-title">Pill Chip</text>
+    <view class="row wrap">
+      <pill-chip label="事业" bind:tap="noop" />
+      <pill-chip label="财富" selected="{{true}}" bind:tap="noop" />
+      <pill-chip label="健康生活方式" bind:tap="noop" />
+      <pill-chip label="其他" selected="{{true}}" bind:tap="noop" />
+    </view>
+    <view class="row wrap">
+      <pill-chip small="{{true}}" label="事业更自由" bind:tap="noop" />
+      <pill-chip small="{{true}}" label="理想爱情" bind:tap="noop" />
+      <pill-chip small="{{true}}" label="旅行" bind:tap="noop" />
+    </view>
+    <text class="state-note">default / selected / small（trending）</text>
+  </view>
+
+  <!-- Manifest Input -->
+  <view class="section">
+    <text class="section-title">Manifest Input</text>
+    <manifest-input bind:submit="onManifestSubmit" />
+    <text class="state-note">输入后点 ✦ 或键盘发送 → submit 事件（当前：{{manifestValue || '未提交'}}）</text>
+  </view>
+
+  <!-- Story Card -->
+  <view class="section">
+    <text class="section-title">Story Card</text>
+    <view class="row wrap">
+      <view class="card-slot">
+        <story-card title="工作室月入稳定后的普通早晨" tone="pink" showFavorite="{{true}}" favorite="{{true}}" bind:tap="noop" />
+      </view>
+      <view class="card-slot">
+        <story-card title="理想爱情里两个人的日常" tone="lilac" bind:tap="noop" />
+      </view>
+    </view>
+    <view class="card-slot wide">
+      <story-card title="这是一个非常非常非常非常非常非常非常长的故事标题，用来检验长标题最多两行截断的表现是否符合规范" tone="pink" bind:tap="noop" />
+    </view>
+    <text class="state-note">tone pink/lilac · favorite 态 · long-text（≤2 行）</text>
+  </view>
+
+  <!-- Affirmation Card -->
+  <view class="section">
+    <text class="section-title">Affirmation Card</text>
+    <affirmation-card text="我正在自然地成为我理想中的自己。" bind:tap="noop" />
+    <view class="spacer" />
+    <affirmation-card text="我允许自己慢慢来，但不停下来。" favorite="{{true}}" bind:tap="noop" />
+    <text class="state-note">default / favorited（滑卡手势在页面层接入）</text>
+  </view>
+
+  <!-- Audio Player -->
+  <view class="section">
+    <text class="section-title">Audio Player</text>
+    <audio-player
+      title="工作室月入稳定后的普通早晨"
+      status="ready"
+      playing="{{true}}"
+      progressPct="{{35}}"
+      currentTime="01:28"
+      duration="04:12"
+      bind:play="noop"
+      bind:seek="noop"
+      bind:ambience="noop"
+    />
+    <view class="spacer" />
+    <audio-player title="正在生成中的故事" status="generating" />
+    <view class="spacer" />
+    <audio-player title="生成失败的故事" status="failed" />
+    <text class="state-note">ready(播放态) / generating / failed+重试</text>
+  </view>
+</view>
+
+<view wx:else class="page">
+  <text class="dev-banner">该页面仅开发预览可用（envVersion != release）</text>
+</view>

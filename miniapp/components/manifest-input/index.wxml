@@ -1,0 +1,20 @@
+<view class="manifest {{focused ? 'is-focused' : ''}}">
+  <input
+    class="manifest-input"
+    value="{{innerValue}}"
+    placeholder="{{placeholder}}"
+    placeholder-class="manifest-placeholder"
+    confirm-type="send"
+    bindinput="onInput"
+    bindfocus="onFocus"
+    bindblur="onBlur"
+    bindconfirm="onSubmit"
+  />
+  <view
+    class="submit {{innerValue ? '' : 'is-empty'}}"
+    hover-class="{{innerValue ? 'submit-pressed' : ''}}"
+    bindtap="onSubmit"
+  >
+    <text class="submit-icon">✦</text>
+  </view>
+</view>

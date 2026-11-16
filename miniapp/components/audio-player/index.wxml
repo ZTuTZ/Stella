@@ -1,0 +1,51 @@
+<view class="player">
+  <text class="player-title">{{title}}</text>
+  <text class="player-ai">为你生成 · AI 内容</text>
+
+  <!-- 生成中：Orb 呼吸 + 文案（§41.6.5，不用系统 loading） -->
+  <view wx:if="{{status === 'generating'}}" class="state-generating">
+    <dream-orb size="{{140}}" breathing="{{true}}" />
+    <text class="generating-text anim-soft-blink">正在生成专属音频…</text>
+  </view>
+
+  <!-- 失败：文案 + 重试 -->
+  <view wx:elif="{{status === 'failed'}}" class="state-failed">
+    <text class="failed-text">音频生成遇到问题，可以稍后重试</text>
+    <view class="retry" hover-class="retry-pressed" bindtap="onRetry">
+      <text class="retry-text">重试</text>
+    </view>
+  </view>
+
+  <!-- READY：进度条 + 播放控件 + 环境音 -->
+  <block wx:else>
+    <view class="progress-row">
+      <text class="time">{{currentTime}}</text>
+      <view class="track">
+        <view class="track-fill" style="width:{{progressPct}}%"></view>
+        <view class="track-dot" style="left:{{progressPct}}%"></view>
+      </view>
+      <text class="time">{{duration}}</text>
+    </view>
+
+    <view class="controls">
+      <text class="skip" hover-class="skip-pressed" bindtap="onBack">↺15</text>
+      <view class="play" hover-class="play-pressed" bindtap="onPlay">
+        <text class="play-icon">{{playing ? '❚❚' : '▶'}}</text>
+      </view>
+      <text class="skip" hover-class="skip-pressed" bindtap="onForward">15↻</text>
+    </view>
+
+    <scroll-view class="ambience" scroll-x enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{ambience}}"
+        wx:key="*this"
+        class="ambience-chip {{selectedAmbience === index ? 'is-selected' : ''}}"
+        hover-class="chip-pressed"
+        bindtap="onAmbience"
+        data-index="{{index}}"
+      >
+        <text class="ambience-text">{{item}}</text>
+      </view>
+    </scroll-view>
+  </block>
+</view>

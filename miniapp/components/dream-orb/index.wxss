@@ -1,0 +1,6 @@
+/* dream-orb — 统一视觉母题（§41.5.7）：120~220rpx，CSS 渐变不依赖位图 */
+.orb {
+  border-radius: 50%;
+  background: var(--gradient-orb);
+  box-shadow: var(--shadow-floating);
+}

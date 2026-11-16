@@ -1,0 +1,19 @@
+<view class="card {{tone === 'lilac' ? 'tone-lilac' : 'tone-pink'}}" hover-class="card-pressed" bindtap="onTap">
+  <!-- Gradient Card（§41.5.4 B）：无图兜底，中心柔和 Orb -->
+  <view class="orb"></view>
+
+  <!-- 收藏（右上，空心/实心爱心） -->
+  <view wx:if="{{showFavorite}}" class="favorite" catchtap="onFavorite">
+    <text class="heart {{favorite ? 'is-favorite' : ''}}">{{favorite ? '♥' : '♡'}}</text>
+  </view>
+
+  <!-- 标题（底部，衬线） -->
+  <view class="title-wrap">
+    <text class="title t-card-title">{{title}}</text>
+  </view>
+
+  <!-- 播放按钮（右下圆形） -->
+  <view wx:if="{{showPlay}}" class="play" catchtap="onPlay">
+    <text class="play-icon">{{playing ? '❚❚' : '▶'}}</text>
+  </view>
+</view>

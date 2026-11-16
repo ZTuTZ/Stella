@@ -1,7 +1,9 @@
 @import "styles/tokens.wxss";
+@import "styles/typography.wxss";
+@import "styles/animations.wxss";
 
 page {
-  background: var(--color-bg);
+  background: var(--gradient-page);
   color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-sans);
 }

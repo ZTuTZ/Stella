@@ -1,0 +1,83 @@
+/* story-card — 故事卡（§41.5.4）：V1 渐变卡为主，不做随机 AI 图 */
+.card {
+  position: relative;
+  width: 100%;
+  height: 460rpx;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.card.tone-pink { background: var(--gradient-card-pink); }
+.card.tone-lilac { background: var(--gradient-card-lilac); }
+
+.card-pressed { transform: scale(0.985); opacity: 0.92; }
+
+/* 中心柔和 Orb */
+.orb {
+  position: absolute;
+  top: 88rpx;
+  left: 50%;
+  width: 180rpx;
+  height: 180rpx;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--gradient-orb);
+  opacity: 0.85;
+  box-shadow: 0 16rpx 48rpx rgba(71, 46, 58, 0.18);
+}
+
+.title-wrap {
+  position: absolute;
+  left: 36rpx;
+  right: 120rpx;
+  bottom: 40rpx;
+}
+
+.title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 播放圆钮 */
+.play {
+  position: absolute;
+  right: 28rpx;
+  bottom: 32rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: rgba(33, 28, 31, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-icon {
+  color: #FFF9F6;
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+/* 收藏 */
+.favorite {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255, 249, 246, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heart {
+  font-size: 32rpx;
+  line-height: 1;
+  color: var(--color-text-tertiary);
+}
+.heart.is-favorite { color: var(--color-heart); }
