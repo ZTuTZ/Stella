@@ -59,7 +59,7 @@ cd admin-web && npm run build
 
 - [x] Phase 0 — 项目骨架（backend 可启动 /actuator/health；miniapp 空首页 + tokens；admin-web 可构建）
 - [x] Phase 1 — 数据库与基础设施（Flyway V1 全部 11 表；统一响应/错误码/requestId；Storage 本地实现 + 受控 /media）
-- [ ] Phase 2 — Auth + User + Profile
+- [x] Phase 2 — Auth + User + Profile（mock/真实微信登录、opaque token、Me/LifeProfile、onboarding）
 - [ ] Phase 3 — Goal + AI Followup
 - [ ] Phase 4 — Story Generation
 - [ ] Phase 5 — AI Audio Framework

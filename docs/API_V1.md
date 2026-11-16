@@ -23,15 +23,15 @@
 ### Auth
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| POST | `/api/v1/auth/wechat/login` | code 登录，返回 accessToken + user | 计划 Phase 2 |
+| POST | `/api/v1/auth/wechat/login` | code 登录，返回 accessToken + user | ✅ Phase 2（mock/真实二合一） |
 | POST | `/api/v1/admin/auth/login` | 管理后台登录 | 计划 Phase 8 |
 
 ### Me / Profile
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| GET / PATCH | `/api/v1/me` | 当前用户 | 计划 Phase 2 |
-| GET / PUT | `/api/v1/me/life-profile` | 人生档案 | 计划 Phase 2 |
-| POST | `/api/v1/me/onboarding/complete` | 完成 onboarding | 计划 Phase 2 |
+| GET / PATCH | `/api/v1/me` | 当前用户 / 更新 displayName(1~30) | ✅ Phase 2 |
+| GET / PUT | `/api/v1/me/life-profile` | 人生档案（PUT 全量替换，版本 +1） | ✅ Phase 2 |
+| POST | `/api/v1/me/onboarding/complete` | 完成 onboarding（幂等） | ✅ Phase 2 |
 
 ### Goals
 | 方法 | 路径 | 说明 | 状态 |

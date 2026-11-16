@@ -61,6 +61,15 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 
 放入 `docs/external/audio/` 后，按实施文档 §15.5 / §37 执行真实 Provider 接入。
 
+## Mock 微信登录
+
+`WECHAT_MOCK_LOGIN=true`（默认 `.env` 已开）时，`POST /api/v1/auth/wechat/login` 不访问微信：
+code 确定性映射为 `mock_<sha256前24位>` openid，同一 code 恒为同一用户。联调真实微信时改为 false 并配置 `WECHAT_APP_ID/WECHAT_APP_SECRET`。
+
+## 鉴权说明
+
+opaque token 存 Redis（key `fs:auth:token:<sha256>`，TTL 7200s）；Redis 不可用时鉴权 fail-closed（401）。
+
 ## 常见问题
 
 - **MySQL 拒绝连接/密码错误**：检查 `.env` 的 `DB_USERNAME/DB_PASSWORD`；本机 root 密码由用户本地保存。

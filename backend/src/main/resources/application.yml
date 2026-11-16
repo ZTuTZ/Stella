@@ -48,6 +48,13 @@ management:
 app:
   auth:
     token-ttl-seconds: 7200
+  wechat:
+    app-id: ${WECHAT_APP_ID:}
+    app-secret: ${WECHAT_APP_SECRET:}
+    # true 时不调用微信接口，code 直接映射为确定性 mock openid（开发/演示用）
+    mock-login: ${WECHAT_MOCK_LOGIN:false}
+    api-base-url: ${WECHAT_API_BASE_URL:https://api.weixin.qq.com}
+    timeout-ms: 5000
   generation:
     worker-delay-ms: 1500
     max-retry-count: 3

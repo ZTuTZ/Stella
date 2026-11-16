@@ -11,3 +11,5 @@ spring:
 app:
   storage:
     local-dir: target/test-media
+  wechat:
+    mock-login: true
