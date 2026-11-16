@@ -1,0 +1,9 @@
+# 本地开发 profile（默认激活）。
+# 所有 secret 走环境变量/.env，不写在本文件；Phase 1 起此处仅放非敏感本地覆盖。
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+logging:
+  level:
+    com.futureself: DEBUG
