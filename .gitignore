@@ -1,0 +1,56 @@
+# ===== macOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# ===== IDE =====
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+.project
+.classpath
+.settings/
+
+# ===== Environment / secrets（严禁提交）=====
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ===== Java / Maven =====
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+*.log
+hs_err_pid*
+replay_pid*
+
+# ===== Spring Boot runtime data =====
+data/
+logs/
+*.pid
+
+# ===== Node / 前端 =====
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.local
+.npm/
+.pnpm-store/
+
+# ===== 小程序 =====
+miniapp/project.private.config.json
+miniapp/miniprogram_npm/
+
+# ===== Test / tmp =====
+*.tmp
+*.bak
+.cache/
