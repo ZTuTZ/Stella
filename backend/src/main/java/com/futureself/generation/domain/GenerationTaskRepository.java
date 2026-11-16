@@ -1,0 +1,71 @@
+package com.futureself.generation.domain;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+public interface GenerationTaskRepository extends JpaRepository<GenerationTask, Long> {
+
+    // —— 可领取任务（§11.3 worker 扫描）——
+    Optional<GenerationTask> findFirstByStatusOrderByCreatedAtAsc(String status);
+
+    Optional<GenerationTask> findFirstByStatusAndNextRetryAtLessThanEqualOrderByCreatedAtAsc(
+            String status, LocalDateTime now);
+
+    // —— 运行中任务检查（§24 幂等/防重复）——
+    boolean existsByGoalIdAndStatusNotIn(Long goalId, List<String> statuses);
+
+    // —— 受控状态迁移（乐观锁语义：仅当 from 匹配才生效，返回影响行数）——
+
+    @Modifying
+    @Query("update GenerationTask t set t.status = :to, t.progress = :progress, t.lockedAt = :now, "
+            + "t.workerId = :workerId, t.startedAt = coalesce(t.startedAt, :now) "
+            + "where t.id = :id and t.status = :from")
+    int claim(@Param("id") Long id, @Param("from") String from, @Param("to") String to,
+              @Param("progress") int progress, @Param("now") LocalDateTime now,
+              @Param("workerId") String workerId);
+
+    @Modifying
+    @Query("update GenerationTask t set t.status = :status, t.progress = :progress, t.storyId = :storyId, "
+            + "t.lockedAt = null, t.workerId = null "
+            + "where t.id = :id and t.status = :from")
+    int attachStoryAndMoveTo(@Param("id") Long id, @Param("from") String from, @Param("status") String status,
+                             @Param("progress") int progress, @Param("storyId") Long storyId);
+
+    @Modifying
+    @Query("update GenerationTask t set t.status = :status, t.progress = :progress, "
+            + "t.lockedAt = null, t.workerId = null "
+            + "where t.id = :id and t.status = :from")
+    int moveTo(@Param("id") Long id, @Param("from") String from, @Param("status") String status,
+               @Param("progress") int progress);
+
+    @Modifying
+    @Query("update GenerationTask t set t.status = 'RETRY_WAIT', t.retryCount = t.retryCount + 1, "
+            + "t.nextRetryAt = :nextRetryAt, t.errorStage = :stage, t.errorCode = :code, t.errorMessage = :message, "
+            + "t.lockedAt = null, t.workerId = null "
+            + "where t.id = :id and t.status = :from")
+    int markRetry(@Param("id") Long id, @Param("from") String from, @Param("stage") String stage,
+                  @Param("code") String code, @Param("message") String message,
+                  @Param("nextRetryAt") LocalDateTime nextRetryAt);
+
+    @Modifying
+    @Query("update GenerationTask t set t.status = 'FAILED', t.errorStage = :stage, t.errorCode = :code, "
+            + "t.errorMessage = :message, t.finishedAt = :now, t.lockedAt = null, t.workerId = null "
+            + "where t.id = :id and t.status = :from")
+    int markFailed(@Param("id") Long id, @Param("from") String from, @Param("stage") String stage,
+                   @Param("code") String code, @Param("message") String message, @Param("now") LocalDateTime now);
+
+    @Modifying
+    @Query("update GenerationTask t set t.status = 'BLOCKED', t.errorStage = 'MODERATION', "
+            + "t.errorCode = 'MODERATION_BLOCKED', t.errorMessage = :message, t.finishedAt = :now, "
+            + "t.lockedAt = null, t.workerId = null "
+            + "where t.id = :id and t.status = :from")
+    int markBlocked(@Param("id") Long id, @Param("from") String from, @Param("message") String message,
+                    @Param("now") LocalDateTime now);
+}

@@ -44,14 +44,14 @@
 ### Generation
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| POST | `/api/v1/goals/{id}/generate-story` | 创建生成任务 | 计划 Phase 4 |
-| GET | `/api/v1/generation-tasks/{id}` | 任务状态/进度 | 计划 Phase 4 |
+| POST | `/api/v1/goals/{id}/generate-story` | 创建生成任务（Idempotency-Key 幂等；运行中 409；输入拦截 422） | ✅ Phase 4 |
+| GET | `/api/v1/generation-tasks/{id}` | 任务状态/进度（audioStatus 随 Phase 5） | ✅ Phase 4 |
 
 ### Stories
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
 | GET | `/api/v1/stories?page&size&favorite` | 列表 | 计划 Phase 7 |
-| GET | `/api/v1/stories/{id}` | 详情（含 audio 状态） | 计划 Phase 4/7 |
+| GET | `/api/v1/stories/{id}` | 详情（文本；audio 随 Phase 5；列表/收藏/删除随 Phase 7） | ✅ Phase 4（部分） |
 | PUT / DELETE | `/api/v1/stories/{id}/favorite`、`/api/v1/stories/{id}` | 收藏 / 软删除 | 计划 Phase 7 |
 | POST | `/api/v1/stories/{id}/retry-audio` | 仅重试音频 | 计划 Phase 5 |
 

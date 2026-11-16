@@ -13,3 +13,7 @@ app:
     local-dir: target/test-media
   wechat:
     mock-login: true
+  # 测试中由用例手动驱动 orchestrator，避免后台 worker 竞争
+  generation:
+    worker-delay-ms: 60000
+    retry-backoff-base-ms: 0

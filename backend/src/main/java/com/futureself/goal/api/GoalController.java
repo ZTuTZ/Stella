@@ -2,6 +2,7 @@ package com.futureself.goal.api;
 
 import com.futureself.auth.CurrentUser;
 import com.futureself.common.api.ApiResponse;
+import com.futureself.generation.GenerationTaskService;
 import com.futureself.goal.FollowupService;
 import com.futureself.goal.GoalService;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,10 +33,12 @@ public class GoalController {
 
     private final GoalService goalService;
     private final FollowupService followupService;
+    private final GenerationTaskService taskService;
 
-    public GoalController(GoalService goalService, FollowupService followupService) {
+    public GoalController(GoalService goalService, FollowupService followupService, GenerationTaskService taskService) {
         this.goalService = goalService;
         this.followupService = followupService;
+        this.taskService = taskService;
     }
 
     @PostMapping("/goals")
@@ -79,5 +83,14 @@ public class GoalController {
                                                                              @PathVariable("id") long id,
                                                                              @Validated @RequestBody FollowupAnswersRequest request) {
         return ApiResponse.ok(followupService.saveAnswers(id, currentUser.userId(), request));
+    }
+
+    /** 发起故事生成（§12.4）。支持 Idempotency-Key 幂等（§24）。 */
+    @PostMapping("/goals/{id}/generate-story")
+    public ApiResponse<Map<String, Object>> generateStory(@AuthenticationPrincipal CurrentUser currentUser,
+                                                          @PathVariable("id") long id,
+                                                          @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+        GenerationTaskService.CreatedTask created = taskService.create(currentUser.userId(), id, idempotencyKey);
+        return ApiResponse.ok(Map.of("taskId", created.taskId(), "status", created.status()));
     }
 }

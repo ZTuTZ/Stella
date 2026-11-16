@@ -61,7 +61,8 @@ cd admin-web && npm run build
 - [x] Phase 1 — 数据库与基础设施（Flyway V1 全部 11 表；统一响应/错误码/requestId；Storage 本地实现 + 受控 /media）
 - [x] Phase 2 — Auth + User + Profile（mock/真实微信登录、opaque token、Me/LifeProfile、onboarding）
 - [x] Phase 3 — Goal + AI Followup（Goal CRUD、TextAiProvider mock/openai、Prompt v1 seed、追问全流程、ai_call_log）
-- [ ] Phase 4 — Story Generation
+- [x] Phase 4 — Story Generation（任务状态机+worker、STORY prompt、输入/输出规则审核、失败重试、重启恢复、故事详情）
+- [ ] Phase 5 — AI Audio Framework
 - [ ] Phase 4 — Story Generation
 - [ ] Phase 5 — AI Audio Framework
 - [ ] Phase 6 — 真实音频 API（条件阶段）

@@ -7,6 +7,8 @@ import com.futureself.goal.api.GoalResponse;
 import com.futureself.goal.api.UpdateGoalRequest;
 import com.futureself.goal.domain.GoalRepository;
 import com.futureself.goal.domain.ManifestationGoal;
+import com.futureself.moderation.ModerationProvider;
+import com.futureself.moderation.ModerationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +18,8 @@ import java.util.Set;
 
 /**
  * Goal CRUD（实施文档 §9.3/§12.3）。
- * 所有按 id 的访问都再次校验 owner（§3.1）；删除为软删除（§32.8）。
+ * 所有按 id 的访问都再次校验 owner（§3.1）；删除为软删除（§32.8）；
+ * 输入审核（§19.2 阶段 1）：Goal 输入后检查，拦截 → GOAL_CONTENT_BLOCKED。
  */
 @Service
 public class GoalService {
@@ -26,9 +29,19 @@ public class GoalService {
             "事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他");
 
     private final GoalRepository goalRepository;
+    private final ModerationProvider moderationProvider;
 
-    public GoalService(GoalRepository goalRepository) {
+    public GoalService(GoalRepository goalRepository, ModerationProvider moderationProvider) {
         this.goalRepository = goalRepository;
+        this.moderationProvider = moderationProvider;
+    }
+
+    private void moderateGoalInput(long userId, String title, String description) {
+        var result = moderationProvider.check(
+                new ModerationRequest("GOAL_INPUT", userId, title + "\n" + description));
+        if (result.blocked()) {
+            throw new BusinessException(ErrorCode.GOAL_CONTENT_BLOCKED);
+        }
     }
 
     @Transactional
@@ -36,6 +49,7 @@ public class GoalService {
         if (!ALLOWED_CATEGORIES.contains(request.goalCategory())) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED, "unknown goalCategory");
         }
+        moderateGoalInput(userId, request.goalTitle(), request.goalDescription());
         ManifestationGoal goal = new ManifestationGoal();
         goal.setUserId(userId);
         goal.setCategory(request.goalCategory());
@@ -78,14 +92,20 @@ public class GoalService {
             }
             goal.setCategory(request.goalCategory());
         }
+        boolean textChanged = false;
         if (request.goalTitle() != null) {
             goal.setTitle(request.goalTitle());
+            textChanged = true;
         }
         if (request.goalDescription() != null) {
             goal.setDescription(request.goalDescription());
+            textChanged = true;
         }
         if (request.targetTimeText() != null) {
             goal.setTargetTimeText(request.targetTimeText());
+        }
+        if (textChanged) {
+            moderateGoalInput(userId, goal.getTitle(), goal.getDescription());
         }
         return toResponse(goalRepository.save(goal));
     }

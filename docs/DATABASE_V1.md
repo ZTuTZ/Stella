@@ -25,6 +25,12 @@
 | `admin_user` | 后台管理员 | 独立凭证，不与小程序用户混用 |
 | `user_event`（可选） | 产品行为埋点 | 只记产品行为，不存故事正文 |
 
+## 状态机补充（Phase 4 落地说明）
+
+- 生成结果在进入 `TEXT_MODERATING` 前以 `moderation_status=PENDING` 落库到 story（重启可恢复）；审核通过 → `PASSED` + 任务 `TEXT_READY`；拦截 → story `BLOCKED` + 任务 `BLOCKED`。
+- 失败：`RETRY_WAIT`（退避 = retry-backoff-base-ms × 2^已重试次数，默认 5s 起步）→ 超限 `FAILED`。
+- worker 每次推进一个阶段；状态迁移全部为 guarded update（乐观锁）。
+
 ## Generation Task 状态机（§11）
 
 ```text

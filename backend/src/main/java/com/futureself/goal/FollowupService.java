@@ -16,7 +16,6 @@ import com.futureself.goal.api.FollowupQuestionsResponse;
 import com.futureself.goal.domain.GoalRepository;
 import com.futureself.goal.domain.ManifestationGoal;
 import com.futureself.profile.ProfileService;
-import com.futureself.profile.api.ImportantPerson;
 import com.futureself.profile.api.LifeProfileResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +38,6 @@ public class FollowupService {
 
     private static final Logger log = LoggerFactory.getLogger(FollowupService.class);
     private static final int MAX_QUESTIONS = 3;
-    private static final int CONTEXT_FIELD_LIMIT = 600;
 
     /** LLM 结构化输出（§14.1）。 */
     public record FollowupQuestionResult(String id, String question, String reason, Boolean optional) {
@@ -55,6 +53,7 @@ public class FollowupService {
     private final TextAiProvider textAiProvider;
     private final AiCallLogService aiCallLogService;
     private final AppTextAiProperties textAiProps;
+    private final PromptContextAssembler contextAssembler;
 
     public FollowupService(GoalService goalService,
                            GoalRepository goalRepository,
@@ -62,7 +61,8 @@ public class FollowupService {
                            PromptTemplateService promptTemplateService,
                            TextAiProvider textAiProvider,
                            AiCallLogService aiCallLogService,
-                           AppTextAiProperties textAiProps) {
+                           AppTextAiProperties textAiProps,
+                           PromptContextAssembler contextAssembler) {
         this.goalService = goalService;
         this.goalRepository = goalRepository;
         this.profileService = profileService;
@@ -70,6 +70,7 @@ public class FollowupService {
         this.textAiProvider = textAiProvider;
         this.aiCallLogService = aiCallLogService;
         this.textAiProps = textAiProps;
+        this.contextAssembler = contextAssembler;
     }
 
     @Transactional
@@ -78,7 +79,7 @@ public class FollowupService {
         LifeProfileResponse profile = profileService.getProfile(userId);
 
         PromptTemplate template = promptTemplateService.getEnabled(PromptTemplate.KEY_FOLLOWUP);
-        Map<String, String> placeholders = buildPlaceholders(profile, goal);
+        Map<String, String> placeholders = contextAssembler.basePlaceholders(profile, goal);
         String userPrompt = PromptFiller.fill(template.getUserTemplate(), placeholders);
 
         TextAiRequest request = new TextAiRequest(
@@ -165,55 +166,6 @@ public class FollowupService {
         details.put("questions", list);
         goal.setDetailsJson(JsonSupport.write(details));
         goalRepository.save(goal);
-    }
-
-    /** §33：空字段不发送；限长；不含 openid/userId 等技术标识。 */
-    private Map<String, String> buildPlaceholders(LifeProfileResponse profile, ManifestationGoal goal) {
-        Map<String, String> p = new LinkedHashMap<>();
-        p.put("currentSituation", PromptFiller.truncate(profile.currentSituation(), CONTEXT_FIELD_LIMIT));
-        p.put("focusAreas", joinOrEmpty(profile.focusAreas()));
-        p.put("importantPeople", joinPeopleOrEmpty(profile.importantPeople()));
-        p.put("preferences", PromptFiller.truncate(joinPreferences(profile.preferences()), CONTEXT_FIELD_LIMIT));
-        p.put("goalCategory", orEmpty(goal.getCategory()));
-        p.put("goalTitle", orEmpty(goal.getTitle()));
-        p.put("goalDescription", PromptFiller.truncate(goal.getDescription(), 1200));
-        p.put("targetTimeText", orEmpty(goal.getTargetTimeText()));
-        return p;
-    }
-
-    private String joinOrEmpty(List<String> items) {
-        return items == null || items.isEmpty() ? "" : String.join("、", items);
-    }
-
-    private String joinPeopleOrEmpty(List<ImportantPerson> people) {
-        if (people == null || people.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (ImportantPerson person : people) {
-            if (!sb.isEmpty()) {
-                sb.append("；");
-            }
-            sb.append(person.name()).append("（").append(person.relation()).append("）");
-            if (person.note() != null && !person.note().isBlank()) {
-                sb.append("：").append(PromptFiller.truncate(person.note(), 60));
-            }
-        }
-        return sb.toString();
-    }
-
-    private String joinPreferences(Map<String, String> preferences) {
-        if (preferences == null || preferences.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : preferences.entrySet()) {
-            if (!sb.isEmpty()) {
-                sb.append("；");
-            }
-            sb.append(entry.getKey()).append("：").append(entry.getValue());
-        }
-        return sb.toString();
     }
 
     private String orEmpty(String value) {
