@@ -2,8 +2,8 @@
  * Library（§41.6.7 / UI Phase 4）：两列故事网格 + 全部/收藏筛选 + 上拉分页 + 空状态。
  * 收藏在卡片上直接切换（乐观更新 + PUT favorite）。
  */
-import { storyApi } from "../../services/api";
-import { StoryResponse } from "../../types/api";
+import { storyApi } from "../../../services/api";
+import { StoryResponse } from "../../../types/api";
 
 const PAGE_SIZE = 10;
 
