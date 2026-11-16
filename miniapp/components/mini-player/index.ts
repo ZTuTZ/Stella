@@ -13,5 +13,8 @@ Component({
     onPlay() {
       this.triggerEvent("play", {});
     },
+    onOpen() {
+      this.triggerEvent("open", {});
+    },
   },
 })

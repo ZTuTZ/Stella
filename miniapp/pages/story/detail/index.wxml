@@ -1,31 +1,69 @@
 <view class="detail">
-  <view class="top">
-    <text class="back" bindtap="goBack">←</text>
-    <text class="ai-badge t-tertiary">AI 生成内容</text>
-  </view>
+  <!-- 上半屏：沉浸封面（§41.6.6） -->
+  <view class="cover">
+    <view class="cover-orb"></view>
+    <view class="cover-overlay"></view>
 
-  <view wx:if="{{loading}}" class="center">
-    <dream-orb size="{{120}}" breathing="{{true}}" />
-  </view>
-
-  <view wx:elif="{{story}}" class="content anim-fade-up">
-    <text class="title">{{story.title}}</text>
-    <text class="summary t-secondary">{{story.summary}}</text>
-
-    <!-- 音频状态（UI Phase 3 升级为完整播放器） -->
-    <view wx:if="{{story.audio && story.audio.status === 'READY'}}" class="audio-hint">
-      <text class="audio-hint-text">🔊 音频已就绪 · 播放器即将上线</text>
-    </view>
-    <view wx:elif="{{story.audio && story.audio.status === 'FAILED'}}" class="audio-hint">
-      <text class="audio-hint-text">音频生成失败，可稍后在故事页重试</text>
+    <view class="top-bar">
+      <view class="icon-btn cover-icon" hover-class="icon-pressed" bindtap="goBack">
+        <text class="icon">←</text>
+      </view>
+      <view class="top-right">
+        <view class="icon-btn cover-icon" hover-class="icon-pressed" bindtap="onFavorite">
+          <text class="icon {{story.favorite ? 'heart-active' : ''}}">{{story.favorite ? '♥' : '♡'}}</text>
+        </view>
+        <view class="icon-btn cover-icon" hover-class="icon-pressed" bindtap="onMore">
+          <text class="icon">⋯</text>
+        </view>
+      </view>
     </view>
 
-    <view class="body">
-      <text wx:for="{{paragraphs}}" wx:key="index" class="paragraph t-longform">{{item}}</text>
+    <view wx:if="{{loading}}" class="cover-center">
+      <dream-orb size="{{140}}" breathing="{{true}}" />
+    </view>
+
+    <view wx:elif="{{story}}" class="cover-title-wrap">
+      <text class="cover-title">{{story.title}}</text>
+      <text class="ai-badge">AI 生成内容</text>
     </view>
   </view>
 
-  <view wx:else class="center">
-    <text class="t-secondary">故事不存在或已删除</text>
+  <!-- 下半屏：播放器 + 全文 -->
+  <view wx:if="{{story}}" class="below">
+    <view class="player-card">
+      <audio-player
+        title="{{story.title}}"
+        status="{{playerStatus}}"
+        playing="{{playerPlaying}}"
+        progressPct="{{playerProgressPct}}"
+        currentTime="{{playerCurrentTime}}"
+        duration="{{playerDuration}}"
+        selectedAmbience="{{selectedAmbience}}"
+        bind:play="onPlayTap"
+        bind:seek="onSeek"
+        bind:ambience="onAmbience"
+        bind:retry="onRetryAudio"
+      />
+    </view>
+
+    <view class="content-section">
+      <view class="content-toggle" hover-class="toggle-pressed" bindtap="toggleContent">
+        <text class="toggle-text">{{contentExpanded ? '收起全文 ↑' : '阅读故事全文 ↓'}}</text>
+      </view>
+      <view wx:if="{{contentExpanded}}" class="body anim-fade-up">
+        <text wx:for="{{paragraphs}}" wx:key="index" class="paragraph t-longform">{{item}}</text>
+      </view>
+      <view wx:else class="body preview">
+        <text wx:for="{{previewParagraphs}}" wx:key="index" class="paragraph t-longform preview-paragraph">{{item}}</text>
+      </view>
+    </view>
   </view>
+
+  <view wx:elif="{{!loading}}" class="below">
+    <view class="missing">
+      <text class="missing-text t-secondary">故事不存在或已删除</text>
+    </view>
+  </view>
+
+  <mini-player visible="{{false}}" />
 </view>

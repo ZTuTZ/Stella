@@ -1,5 +1,7 @@
 {
   "usingComponents": {
-    "dream-orb": "/components/dream-orb/index"
+    "dream-orb": "/components/dream-orb/index",
+    "audio-player": "/components/audio-player/index",
+    "mini-player": "/components/mini-player/index"
   }
 }

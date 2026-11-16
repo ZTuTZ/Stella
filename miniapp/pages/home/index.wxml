@@ -54,4 +54,13 @@
 
 <text wx:if="{{hasRunningTask}}" class="running-note t-tertiary">✦ 你有一个故事正在生成中</text>
 
-<mini-player visible="{{false}}" />
+<mini-player
+  visible="{{miniPlayerVisible}}"
+  title="{{miniPlayerTitle}}"
+  playing="{{miniPlayerPlaying}}"
+  progressPct="{{miniPlayerProgressPct}}"
+  currentTime="{{miniPlayerCurrentTime}}"
+  duration="{{miniPlayerDuration}}"
+  bind:play="onMiniPlay"
+  bind:open="onMiniOpen"
+/>

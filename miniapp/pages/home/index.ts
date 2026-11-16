@@ -6,6 +6,14 @@
  */
 import { homeApi } from "../../services/api";
 import { CarouselStory, HomeResponse } from "../../types/api";
+import {
+  formatTime,
+  getPlayerState,
+  playerProgressPct,
+  subscribePlayer,
+  togglePlay,
+} from "../../stores/player";
+import { PlayerState } from "../../stores/player";
 
 const TRENDING = ["事业更自由", "理想爱情", "旅行", "更自信", "学会放松"];
 
@@ -18,21 +26,65 @@ Page({
     affirmationText: "",
     affirmationFavorite: false,
     hasRunningTask: false,
+    // Mini Player（与全局播放器同步 §42.4）
+    miniPlayerVisible: false,
+    miniPlayerTitle: "",
+    miniPlayerPlaying: false,
+    miniPlayerProgressPct: 0,
+    miniPlayerCurrentTime: "00:00",
+    miniPlayerDuration: "00:00",
   },
 
   affItems: [] as string[],
   affIndex: 0,
   affTouchStartX: 0,
+  unsubscribePlayer: null as null | (() => void),
+
+  onLoad() {
+    this.unsubscribePlayer = subscribePlayer(() => this.syncMiniPlayer());
+  },
+
+  onUnload() {
+    if (this.unsubscribePlayer) {
+      this.unsubscribePlayer();
+      this.unsubscribePlayer = null;
+    }
+  },
 
   onShow() {
     this.setSelectedTab(0);
     this.refresh();
+    this.syncMiniPlayer();
   },
 
   setSelectedTab(index: number) {
     const tabBar = this.getTabBar();
     if (tabBar) {
       tabBar.setData({ selected: index });
+    }
+  },
+
+  /** Mini Player：离开故事详情但音频仍在播放时显示（§41.5.8） */
+  syncMiniPlayer() {
+    const s: PlayerState = getPlayerState();
+    this.setData({
+      miniPlayerVisible: s.loaded,
+      miniPlayerTitle: s.title,
+      miniPlayerPlaying: s.playing,
+      miniPlayerProgressPct: playerProgressPct(),
+      miniPlayerCurrentTime: formatTime(s.currentTimeSec),
+      miniPlayerDuration: formatTime(s.durationSec),
+    });
+  },
+
+  onMiniPlay() {
+    togglePlay();
+  },
+
+  onMiniOpen() {
+    const s = getPlayerState();
+    if (s.storyId) {
+      wx.navigateTo({ url: "/pages/story/detail/index?storyId=" + s.storyId });
     }
   },
 

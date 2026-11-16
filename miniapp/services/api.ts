@@ -53,6 +53,11 @@ export const generationApi = {
 
 export const storyApi = {
   detail: (storyId: number) => api.get<StoryResponse>(`/api/v1/stories/${storyId}`),
+  setFavorite: (storyId: number, favorite: boolean) =>
+    api.put<{ id: number; favorite: boolean }>(`/api/v1/stories/${storyId}/favorite`, { favorite }),
+  retryAudio: (storyId: number) =>
+    api.post<{ taskId: number; taskStatus: string; audioStatus: string | null }>(
+      `/api/v1/stories/${storyId}/retry-audio`),
 };
 
 export const homeApi = {
