@@ -1,3 +1,11 @@
 {
-  "usingComponents": {}
+  "usingComponents": {
+    "brand-header": "/components/brand-header/index",
+    "dream-orb": "/components/dream-orb/index",
+    "manifest-input": "/components/manifest-input/index",
+    "pill-chip": "/components/pill-chip/index",
+    "story-carousel": "/components/story-carousel/index",
+    "affirmation-card": "/components/affirmation-card/index",
+    "mini-player": "/components/mini-player/index"
+  }
 }

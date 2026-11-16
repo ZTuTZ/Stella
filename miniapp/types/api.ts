@@ -100,3 +100,21 @@ export interface StoryResponse {
   profileVersion: number;
   createdAt: string;
 }
+
+/** 首页轮播卡数据（tone: pink/lilac） */
+export interface CarouselStory {
+  id: number;
+  title: string;
+  tone: string;
+  favorite: boolean;
+  playing: boolean;
+}
+
+/** GET /api/v1/home（§12.7） */
+export interface HomeResponse {
+  user: { id: number; displayName: string };
+  todayStory: StoryResponse | null;
+  recentStories: StoryResponse[];
+  affirmations: { date: string; items: string[] } | null;
+  hasRunningTask: boolean;
+}

@@ -1,21 +1,35 @@
 /**
- * Onboarding 步骤 C（§5.2）：分类 → 标题（2~80）→ 描述（10~1200）→ 时间（可跳过）。
+ * Onboarding 步骤 C / 首页快捷创建（standalone 模式，§41.6.4）：
+ * 分类 → 标题（2~80）→ 描述（10~1200）→ 时间（可跳过）。
  * 最后一步 POST /goals 创建目标 → 跳 AI 追问页。
+ * standalone=1（首页 manifest 提交）：隐藏 onboarding 进度；prefill 预填标题。
  */
 import { goalApi } from "../../../services/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
 
 const CATEGORIES = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
-const PROGRESS = ["5 / 6", "5 / 6", "5 / 6", "5 / 6"];
 
 Page({
   data: {
     step: 1,
     progressText: "5 / 6",
+    standalone: false,
     categories: CATEGORIES,
     draft: loadDraft(),
     error: "",
     loading: false,
+  },
+
+  onLoad(options: Record<string, string | undefined>) {
+    const standalone = options.standalone === "1";
+    if (standalone && options.prefill) {
+      saveDraft({ goalTitle: decodeURIComponent(options.prefill) });
+    }
+    this.setData({
+      standalone,
+      draft: loadDraft(),
+      progressText: standalone ? "" : "5 / 6",
+    });
   },
 
   onPickCategory(e: WechatMiniprogram.CustomEvent<{ label: string }>) {
@@ -34,7 +48,7 @@ Page({
 
   goBack() {
     if (this.data.step > 1) {
-      this.setData({ step: this.data.step - 1, progressText: "5 / 6", error: "" });
+      this.setData({ step: this.data.step - 1, progressText: this.data.standalone ? "" : "5 / 6", error: "" });
       return;
     }
     wx.navigateBack();
@@ -76,7 +90,7 @@ Page({
 
   advance() {
     const next = this.data.step + 1;
-    this.setData({ step: next, progressText: PROGRESS[next - 1] || "5 / 6", error: "" });
+    this.setData({ step: next, progressText: this.data.standalone ? "" : "5 / 6", error: "" });
   },
 
   createGoal() {

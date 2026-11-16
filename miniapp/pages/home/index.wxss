@@ -1,56 +1,59 @@
+/* home — 首页（§41.6.3）：视觉重点 问候/问题 → 输入框 → 个性化故事；首屏无功能宫格 */
 .page {
   min-height: 100vh;
-  padding: 96rpx 32rpx;
+  padding: 24rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
+}
+
+.greeting {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 32rpx;
 }
+.greeting-text { margin-top: 24rpx; text-align: center; }
 
-.orb {
-  width: 200rpx;
-  height: 200rpx;
-  border-radius: 50%;
-  background: var(--gradient-orb);
-  box-shadow: var(--shadow-floating);
-  margin-top: 96rpx;
-}
+.input-area { margin-top: 48rpx; }
 
-.hero {
+.trending { margin-top: 36rpx; }
+.trending-label { display: block; margin-bottom: 16rpx; }
+.trending-scroll { width: 100%; }
+.trending-track {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 64rpx;
+  flex-direction: row;
+  gap: 16rpx;
+  width: max-content;
+  padding-right: 32rpx;
 }
 
-.hero-title {
-  font-family: var(--font-serif);
-  font-size: 60rpx;
-  font-weight: 400;
-  line-height: 1.1;
-}
+.foryou { margin-top: 56rpx; }
 
-.hero-sub {
-  margin-top: 24rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
-  color: var(--color-text-secondary);
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.section-title { font-size: 38rpx; }
+.section-link { padding: 8rpx; }
+
+.empty {
+  padding: 48rpx 32rpx;
+  border-radius: var(--radius-md);
+  background: rgba(255, 249, 246, 0.6);
+  border: 1rpx dashed var(--color-line);
+}
+.empty-text { text-align: center; }
+
+.affirmation-area { margin-top: 64rpx; }
+.swipe-hint {
+  display: block;
   text-align: center;
-  max-width: 560rpx;
+  margin-top: 20rpx;
 }
 
-.placeholder {
-  margin-top: auto;
-  padding: 24rpx;
-  font-size: 24rpx;
-  color: var(--color-text-tertiary);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.dev-link {
-  color: var(--color-accent);
-  font-size: 24rpx;
+.running-note {
+  display: block;
+  text-align: center;
+  margin-top: 48rpx;
 }

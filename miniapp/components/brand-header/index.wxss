@@ -1,0 +1,39 @@
+/* brand-header — 顶部品牌区（§41.5.1）：衬线字标 + 圆形浅底线性图标 */
+.brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0 0;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-size: 34rpx;
+  font-weight: 400;
+  letter-spacing: 2rpx;
+  color: var(--color-text);
+}
+
+.actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.icon-btn {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
+  background: rgba(255, 249, 246, 0.8);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-pressed { transform: scale(0.94); opacity: 0.85; }
+
+.icon {
+  font-size: 30rpx;
+  line-height: 1;
+  color: var(--color-text);
+}

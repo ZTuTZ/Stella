@@ -1,0 +1,65 @@
+/* mini-player — 页面底部固定迷你播放器（§41.5.8） */
+.mini-player {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: calc(140rpx + env(safe-area-inset-bottom));
+  height: 120rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 249, 246, 0.94);
+  box-shadow: var(--shadow-floating);
+  overflow: hidden;
+  z-index: 50;
+}
+
+/* 顶部 2rpx 进度条 */
+.progress-line {
+  height: 2rpx;
+  background: var(--color-primary-btn);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+  gap: 24rpx;
+}
+
+.mini-orb {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: var(--gradient-orb);
+  flex-shrink: 0;
+}
+
+.meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  overflow: hidden;
+}
+
+.mini-title {
+  font-size: 26rpx;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-time { font-size: 20rpx; color: var(--color-text-tertiary); }
+
+.mini-play {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: var(--color-primary-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mini-pressed { transform: scale(0.94); }
+.mini-play-icon { color: #FFF9F6; font-size: 26rpx; line-height: 1; }

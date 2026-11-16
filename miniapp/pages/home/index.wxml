@@ -1,11 +1,57 @@
-<view class="page">
-  <view class="orb"></view>
-  <view class="hero">
-    <text class="hero-title">遇见未来的自己</text>
-    <text class="hero-sub">把你想要的人生说给我听，我会把它写成一个已经发生的故事。</text>
+<brand-header bind:heart="onLibrary" bind:history="onHistory" />
+
+<view class="greeting anim-fade-up">
+  <dream-orb size="{{88}}" />
+  <text class="greeting-text t-page-title">{{greeting}}</text>
+</view>
+
+<view class="input-area anim-fade-up">
+  <manifest-input value="{{manifestValue}}" bind:submit="onManifestSubmit" bind:change="onManifestChange" />
+</view>
+
+<view class="trending anim-fade-up">
+  <text class="trending-label t-label">热门愿望</text>
+  <scroll-view scroll-x enhanced show-scrollbar="{{false}}" class="trending-scroll">
+    <view class="trending-track">
+      <pill-chip
+        wx:for="{{trending}}"
+        wx:key="*this"
+        small="{{true}}"
+        label="{{item}}"
+        bind:tap="onTrendingTap"
+        data-label="{{item}}"
+      />
+    </view>
+  </scroll-view>
+</view>
+
+<view class="foryou anim-fade-up">
+  <view class="section-head">
+    <text class="section-title t-page-title">For you</text>
+    <text class="section-link t-tertiary" bindtap="onViewAll">查看全部</text>
   </view>
-  <view class="placeholder">
-    <text>Phase 0 骨架首页 · 业务与视觉在后续阶段实现</text>
-    <text class="dev-link" bindtap="goDesignSystem">DEV · 打开设计系统 →</text>
+  <story-carousel wx:if="{{stories.length > 0}}" stories="{{stories}}" bind:storytap="onStoryTap" />
+  <view wx:else class="empty">
+    <text class="empty-text t-secondary">还没有属于你的故事，写下第一个愿望吧。</text>
   </view>
 </view>
+
+<view wx:if="{{affirmationText}}" class="affirmation-area anim-fade-up"
+      bindtouchstart="onAffTouchStart" bindtouchend="onAffTouchEnd">
+  <view class="section-head">
+    <text class="section-title t-page-title">Today's affirmation</text>
+    <text class="section-link t-tertiary" bindtap="onNextAffirmation">换一条</text>
+  </view>
+  <affirmation-card
+    text="{{affirmationText}}"
+    favorite="{{affirmationFavorite}}"
+    bind:favorite="onAffirmationFavorite"
+    bind:more="onNextAffirmation"
+    bind:tap="onNextAffirmation"
+  />
+  <text class="swipe-hint t-tertiary">向右收藏 · 向左换一条</text>
+</view>
+
+<text wx:if="{{hasRunningTask}}" class="running-note t-tertiary">✦ 你有一个故事正在生成中</text>
+
+<mini-player visible="{{false}}" />

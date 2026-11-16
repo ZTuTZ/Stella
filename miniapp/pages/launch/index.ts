@@ -41,9 +41,8 @@ Page({
   },
 
   route(onboardingCompleted: boolean) {
-    // UI Phase 2 接入 custom-tab-bar 后改为 switchTab
     if (onboardingCompleted) {
-      wx.reLaunch({ url: "/pages/home/index" });
+      wx.switchTab({ url: "/pages/home/index" });
     } else {
       wx.redirectTo({ url: "/pages/onboarding/basic/index" });
     }

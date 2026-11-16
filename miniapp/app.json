@@ -2,6 +2,7 @@
   "pages": [
     "pages/launch/index",
     "pages/home/index",
+    "pages/profile/index",
     "pages/onboarding/basic/index",
     "pages/onboarding/context/index",
     "pages/onboarding/goal/index",
@@ -15,6 +16,16 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "Future Self",
     "backgroundColor": "#F8E9E8"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#9C8F94",
+    "selectedColor": "#1E1A1C",
+    "backgroundColor": "#FDF4F0",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "首页" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",

@@ -1,0 +1,14 @@
+/* story-carousel — "Future Self" 横向轮播（§41.5.5）：当前卡 68~76% 宽，前后露边 */
+.carousel { width: 100%; }
+
+.track {
+  display: flex;
+  flex-direction: row;
+  padding: 8rpx 32rpx 16rpx;
+}
+
+.item {
+  width: 540rpx;
+  flex-shrink: 0;
+  margin-right: 24rpx;
+}

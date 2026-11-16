@@ -11,6 +11,9 @@
 | `story-card` | 故事卡（渐变 + Orb） | `title` `tone` `showPlay` `showFavorite` `favorite` `playing` | `tap` `play` `favorite` |
 | `affirmation-card` | 叠卡肯定语 | `text` `footerLabel` `showActions` `favorite` | `tap` `favorite` `more` |
 | `audio-player` | 播放器骨架（ready/generating/failed） | `title` `status` `playing` `progressPct` `currentTime` `duration` `ambience` `selectedAmbience` | `play` `seek` `ambience` `retry` |
+| `brand-header` | 顶部品牌区（衬线字标 + 圆形图标） | — | `heart` `history` |
+| `story-carousel` | 故事卡横向轮播（露边） | `stories` [{id,title,tone,favorite,playing}] | `storytap` |
+| `mini-player` | 底部迷你播放器占位 | `visible` `title` `playing` `progressPct` `currentTime` `duration` | `play` |
 
 ## 使用约定
 

@@ -1,0 +1,21 @@
+<scroll-view class="carousel" scroll-x enhanced show-scrollbar="{{false}}" snap-align="start">
+  <view class="track">
+    <view
+      wx:for="{{stories}}"
+      wx:key="id"
+      class="item"
+      data-id="{{item.id}}"
+    >
+      <story-card
+        title="{{item.title}}"
+        tone="{{item.tone}}"
+        favorite="{{item.favorite}}"
+        showFavorite="{{true}}"
+        showPlay="{{true}}"
+        playing="{{item.playing}}"
+        bind:tap="onCardTap"
+        data-id="{{item.id}}"
+      />
+    </view>
+  </view>
+</scroll-view>

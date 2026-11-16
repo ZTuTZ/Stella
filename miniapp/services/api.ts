@@ -5,6 +5,7 @@ import { api, RequestOptions } from "./request";
 import {
   FollowupQuestion,
   GoalResponse,
+  HomeResponse,
   LifeProfileResponse,
   LoginUser,
   MeResponse,
@@ -52,6 +53,10 @@ export const generationApi = {
 
 export const storyApi = {
   detail: (storyId: number) => api.get<StoryResponse>(`/api/v1/stories/${storyId}`),
+};
+
+export const homeApi = {
+  home: (options?: RequestOptions) => api.get<HomeResponse>("/api/v1/home", options),
 };
 
 export type { LoginUser };
