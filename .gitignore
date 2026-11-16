@@ -45,6 +45,7 @@ coverage/
 *.local
 .npm/
 .pnpm-store/
+.npm-cache/
 
 # ===== 小程序 =====
 miniapp/project.private.config.json

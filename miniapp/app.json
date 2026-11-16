@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/home/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#F8E9E8",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "Future Self",
+    "backgroundColor": "#F8E9E8"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,45 @@
+/**
+ * Design Tokens — 实施文档 §41.2/§41.11（Stella-inspired 视觉规范）。
+ * 页面禁止散落硬编码色值；±5% 视觉微调须保持"低饱和粉背景 + 深色正文 + 极少蓝强调"关系。
+ * UI Phase 0 将补充 typography.wxss / animations.wxss 与组件库。
+ */
+page {
+  /* 色彩 */
+  --color-bg: #F8E9E8;              /* 全局主背景：柔和奶油粉 */
+  --color-bg-soft: #FDF4F0;         /* 内容页浅背景 */
+  --color-surface: #FFF9F6;         /* 卡片/输入框底色 */
+  --color-surface-pink: #F3D8DF;    /* 次级粉色卡片 */
+  --color-surface-lilac: #E9DFF3;   /* 少量薰衣草色故事卡片 */
+  --color-text: #1E1A1C;            /* 主文字，接近黑不纯黑 */
+  --color-text-secondary: #6F6468;  /* 次级文字 */
+  --color-text-tertiary: #9C8F94;   /* 提示文字 */
+  --color-accent: #184AA5;          /* 少量高对比蓝：强调标题/链接，不做全局主按钮 */
+  --color-heart: #C85D72;           /* 收藏/爱心 */
+  --color-line: rgba(30, 26, 28, .10);  /* 细分隔线 */
+  --color-overlay: rgba(20, 15, 18, .34); /* 图片上的暗色遮罩 */
+  --color-primary-btn: #211C1F;     /* 主按钮深炭黑（§41.5.9） */
+
+  /* 渐变（仅允许低对比柔和渐变） */
+  --gradient-page: linear-gradient(180deg, #F9E7E7 0%, #F8ECE7 55%, #F4DFE6 100%);
+  --gradient-card-pink: linear-gradient(145deg, #F7D7E2 0%, #FCE9E4 100%);
+  --gradient-card-lilac: linear-gradient(145deg, #E7DCF3 0%, #F5E7EF 100%);
+  --gradient-orb: radial-gradient(circle at 35% 30%, #FFF8FF 0%, #E7C5EA 35%, #D5A8C8 70%, #C58EB2 100%);
+
+  /* 圆角 */
+  --radius-xs: 16rpx;
+  --radius-sm: 24rpx;
+  --radius-md: 32rpx;
+  --radius-lg: 40rpx;
+  --radius-pill: 999rpx;
+
+  /* 阴影：几乎看不到但能感到层级 */
+  --shadow-card: 0 12rpx 36rpx rgba(71, 46, 58, .08);
+  --shadow-floating: 0 20rpx 60rpx rgba(57, 35, 46, .14);
+
+  /* 字体 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Songti SC", "STSong", "Noto Serif SC", serif;
+
+  background: var(--gradient-page);
+  color: var(--color-text);
+}

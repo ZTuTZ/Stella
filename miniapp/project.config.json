@@ -1,0 +1,19 @@
+{
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "future-self-mini",
+  "libVersion": "latest",
+  "setting": {
+    "useCompilerPlugins": ["typescript"],
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "ignoreUploadUnusedFiles": true,
+    "urlCheck": true
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}

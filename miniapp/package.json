@@ -1,0 +1,10 @@
+{
+  "name": "future-self-miniapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Future Self WeChat mini program (native + TypeScript)",
+  "devDependencies": {
+    "miniprogram-api-typings": "^4.0.5",
+    "typescript": "^5.9.3"
+  }
+}
