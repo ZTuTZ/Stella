@@ -38,4 +38,11 @@ PENDING → TEXT_GENERATING → TEXT_MODERATING → TEXT_READY
 
 | 版本 | 文件 | 内容 | 状态 |
 |---|---|---|---|
-| V1 | （Phase 1 创建） | 全部核心表 + Prompt seed | 计划中 |
+| V1 | `V1__init_schema.sql` | 全部 11 张核心表（含 user_event）+ 全部索引 | ✅ 已应用 |
+
+## 设计决策
+
+- **不建物理外键**：`story ↔ generation_task` 双向引用，且任务队列/软删除场景下物理外键放大删除耦合；关联一致性由服务层保证。
+- `updated_at` 由 MySQL `ON UPDATE CURRENT_TIMESTAMP(3)` 维护；实体层不再重复管理。
+- `story.generation_task_id` 在任务回写 `story_id` 的同一事务中互相关联（Phase 4 实现）。
+- 集成测试连接独立库 `future_self_test`（profile `test`），Redis 用 db15，不污染开发库。

@@ -1,0 +1,13 @@
+# 集成测试 profile：连接独立测试库 future_self_test，Redis 用 db15，不污染开发库/缓存。
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:mysql://localhost:3306/future_self_test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  data:
+    redis:
+      database: 15
+
+app:
+  storage:
+    local-dir: target/test-media

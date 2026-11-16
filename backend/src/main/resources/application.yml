@@ -7,6 +7,33 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
+  # —— MySQL 8：唯一事实源（实施文档 §6.4/§21）——
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/future_self?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  # —— Flyway：数据库结构唯一变更入口 ——
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  # —— JPA：只做读写映射，结构归 Flyway 管 ——
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  # —— Redis：仅缓存/限流/幂等/锁（§17）——
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
 management:
   endpoints:
     web:
@@ -17,16 +44,33 @@ management:
       probes:
         enabled: true
 
-# —— 应用配置结构（实施文档 §21）——
-# Phase 1 补充 spring.datasource / spring.data.redis / flyway；
-# Phase 2 补充 wechat 与 security；此处先固定结构与非敏感默认值。
+# —— 应用配置（实施文档 §21）——
 app:
   auth:
     token-ttl-seconds: 7200
   generation:
     worker-delay-ms: 1500
     max-retry-count: 3
+  ai:
+    text:
+      provider: ${AI_TEXT_PROVIDER:mock}
+      base-url: ${AI_TEXT_BASE_URL:}
+      api-key: ${AI_TEXT_API_KEY:}
+      model: ${AI_TEXT_MODEL:}
+      timeout-seconds: 60
+    audio:
+      provider: ${AI_AUDIO_PROVIDER:mock}
+      base-url: ${AI_AUDIO_BASE_URL:}
+      api-key: ${AI_AUDIO_API_KEY:}
+      voice-id: ${AI_AUDIO_VOICE_ID:}
+  storage:
+    provider: ${STORAGE_PROVIDER:local}
+    local-dir: ${STORAGE_LOCAL_DIR:./data/media}
+    public-base-url: /media
 
 logging:
+  pattern:
+    # requestId 贯穿 HTTP/任务/AI 调用日志（§23）
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [${APP_NAME:future-self}:%X{requestId:-}] %logger{36} - %msg%n"
   level:
     root: INFO

@@ -2,6 +2,7 @@ package com.futureself;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
  * Future Self 微信小程序后端入口（V1）。
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * ai.text / ai.audio / moderation / storage / admin。
  */
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class FutureSelfApplication {
 
     public static void main(String[] args) {

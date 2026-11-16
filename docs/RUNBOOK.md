@@ -46,9 +46,16 @@ cd admin-web && npm install && npm run dev
 ## 测试
 
 ```bash
-cd backend && mvn test          # 后端单元/集成测试
+cd backend && mvn -s ../scripts/maven-settings.xml test          # 后端单元/集成测试（需本地 MySQL+Redis）
 cd admin-web && npm run build   # 前端类型检查 + 构建
 ```
+
+> 集成测试连接独立测试库 `future_self_test`（自动创建），Redis 使用 db15；需先 `source .env` 或在环境变量中提供 `DB_PASSWORD`。
+
+## Maven 注意事项
+
+本机全局 settings.xml 激活了云效私有仓库 profile（仅 deploy 用），其域名对 JVM TLS 握手失败会导致依赖解析中断。
+**本项目构建统一使用项目级配置**：`mvn -s scripts/maven-settings.xml ...`（只走阿里云公共镜像，本地仓库路径与全局一致）。
 
 ## 音频 API 文档
 

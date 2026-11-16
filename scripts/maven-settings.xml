@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  项目级 Maven settings（Stella / future-self-mini 专用）。
+
+  背景：本机全局 settings.xml（/Users/aadmin/tool/apache-maven-3.9.16/conf/settings.xml）
+  激活了云效私有仓库 profile `rdc`（1231-release-NyqpnL）。该仓库仅用于 deploy 发布；
+  本项目只依赖公共仓库，且 JVM 对该私有域名的 TLS 握手持续失败，导致依赖解析中断。
+
+  本文件：
+    * 只保留阿里云公共镜像（mirrorOf=central）
+    * 保留与全局一致的本地仓库路径（复用已有缓存）
+    * 不含任何私有仓库与凭据
+  用法：mvn -s scripts/maven-settings.xml ...
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+  <localRepository>/Users/aadmin/tool/apache-maven-3.9.16/repository</localRepository>
+
+  <mirrors>
+    <mirror>
+      <id>aliyunmaven</id>
+      <mirrorOf>central</mirrorOf>
+      <url>https://maven.aliyun.com/repository/public</url>
+      <blocked>false</blocked>
+    </mirror>
+  </mirrors>
+</settings>
