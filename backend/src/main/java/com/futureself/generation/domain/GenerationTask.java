@@ -49,6 +49,10 @@ public class GenerationTask {
     public static final int PROGRESS_TEXT_GENERATING = 20;
     public static final int PROGRESS_TEXT_MODERATING = 40;
     public static final int PROGRESS_TEXT_READY = 60;
+    public static final int PROGRESS_AUDIO_SUBMITTING = 70;
+    public static final int PROGRESS_AUDIO_PROCESSING = 80;
+    public static final int PROGRESS_AUDIO_STORING = 90;
+    public static final int PROGRESS_COMPLETED = 100;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

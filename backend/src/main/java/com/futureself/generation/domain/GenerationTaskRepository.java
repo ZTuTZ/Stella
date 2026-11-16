@@ -68,4 +68,18 @@ public interface GenerationTaskRepository extends JpaRepository<GenerationTask, 
             + "where t.id = :id and t.status = :from")
     int markBlocked(@Param("id") Long id, @Param("from") String from, @Param("message") String message,
                     @Param("now") LocalDateTime now);
+
+    /** 任务进入终态 COMPLETED 后记录完成时间。 */
+    @Modifying
+    @Query("update GenerationTask t set t.finishedAt = :now where t.id = :id and t.status = 'COMPLETED' "
+            + "and t.finishedAt is null")
+    int markFinishedAt(@Param("id") Long id, @Param("now") LocalDateTime now);
+
+    /** 手动重试音频（§12.5/§20.4）：文本已完成、音频失败的终态任务重置回音频提交阶段。 */
+    @Modifying
+    @Query("update GenerationTask t set t.status = 'AUDIO_SUBMITTING', t.progress = 70, "
+            + "t.errorStage = null, t.errorCode = null, t.errorMessage = null, t.nextRetryAt = null, "
+            + "t.finishedAt = null, t.lockedAt = null, t.workerId = null "
+            + "where t.id = :id and t.status = :from")
+    int resetToAudioSubmitting(@Param("id") Long id, @Param("from") String from);
 }

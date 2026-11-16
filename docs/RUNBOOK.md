@@ -61,6 +61,12 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 
 放入 `docs/external/audio/` 后，按实施文档 §15.5 / §37 执行真实 Provider 接入。
 
+## Mock 音频
+
+`AI_AUDIO_PROVIDER=mock`（默认）时：submit 即返回模拟 taskId，`AI_AUDIO_MOCK_DELAY_MS`（默认 3000）后 READY；
+READY 返回项目内 fixture（`AI_AUDIO_MOCK_FIXTURE_DIR`，启动时自动生成 2 秒静音 WAV），由后端转存到自有存储后经 `/media/**` 播放。
+**真实音频 Provider 未实现**：`docs/external/audio/` 出现供应商文档前，任何非 mock 的 provider 值会因无 Bean 而启动失败（明确的配置错误）。
+
 ## Mock 微信登录
 
 `WECHAT_MOCK_LOGIN=true`（默认 `.env` 已开）时，`POST /api/v1/auth/wechat/login` 不访问微信：

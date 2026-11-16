@@ -62,7 +62,8 @@ cd admin-web && npm run build
 - [x] Phase 2 — Auth + User + Profile（mock/真实微信登录、opaque token、Me/LifeProfile、onboarding）
 - [x] Phase 3 — Goal + AI Followup（Goal CRUD、TextAiProvider mock/openai、Prompt v1 seed、追问全流程、ai_call_log）
 - [x] Phase 4 — Story Generation（任务状态机+worker、STORY prompt、输入/输出规则审核、失败重试、重启恢复、故事详情）
-- [ ] Phase 5 — AI Audio Framework
+- [x] Phase 5 — AI Audio Framework（AiAudioProvider+Mock、audio_asset、音频阶段状态机、Storage 转存、retry-audio、supersede）
+- [ ] Phase 6 — 真实音频 API（条件阶段，等 docs/external/audio/）
 - [ ] Phase 4 — Story Generation
 - [ ] Phase 5 — AI Audio Framework
 - [ ] Phase 6 — 真实音频 API（条件阶段）

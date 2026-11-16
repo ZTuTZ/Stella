@@ -70,6 +70,9 @@ app:
       base-url: ${AI_AUDIO_BASE_URL:}
       api-key: ${AI_AUDIO_API_KEY:}
       voice-id: ${AI_AUDIO_VOICE_ID:}
+      # Mock：submit → READY 的模拟时长与测试音频目录（真实 Provider 待供应商文档）
+      mock-delay-ms: ${AI_AUDIO_MOCK_DELAY_MS:3000}
+      mock-fixture-dir: ${AI_AUDIO_MOCK_FIXTURE_DIR:./data/mock-audio}
   storage:
     provider: ${STORAGE_PROVIDER:local}
     local-dir: ${STORAGE_LOCAL_DIR:./data/media}

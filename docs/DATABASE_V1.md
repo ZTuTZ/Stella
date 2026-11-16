@@ -17,7 +17,7 @@
 | `life_profile` | 人生档案（一对一） | UNIQUE user_id；profile_version 修改 +1 |
 | `manifestation_goal` | 目标/愿望 | idx(user_id,status,created_at)；details_json 存追问答案 |
 | `story` | 故事 | 记录 prompt_template_id/provider/model/profile_version；moderation_status |
-| `audio_asset` | 音频资产 | status: PENDING/SUBMITTED/PROCESSING/READY/FAILED；storage_key 自有存储 |
+| `audio_asset` | 音频资产 | status: PENDING/SUBMITTED/PROCESSING/READY/FAILED/SUPERSEDED；asset 在 submit 成功后创建；重生成时旧 asset 标 SUPERSEDED（§32.5） |
 | `generation_task` | 生成任务队列 | idx(status,next_retry_at,created_at)；retry_count/max_retry_count/next_retry_at |
 | `affirmation_daily` | 每日肯定句 | UNIQUE(user_id, local_date) |
 | `prompt_template` | Prompt 版本 | UNIQUE(prompt_key, version)；同 key 仅一个 enabled |

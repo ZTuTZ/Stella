@@ -17,3 +17,8 @@ app:
   generation:
     worker-delay-ms: 60000
     retry-backoff-base-ms: 0
+  # Mock 音频立即 READY，fixture 放进测试目录
+  ai:
+    audio:
+      mock-delay-ms: 0
+      mock-fixture-dir: target/test-media/mock-audio
