@@ -57,7 +57,7 @@ cd admin-web && npm run build
 
 ## 状态
 
-- [x] Phase 0 — 项目骨架（进行中）
+- [x] Phase 0 — 项目骨架（backend 可启动 /actuator/health；miniapp 空首页 + tokens；admin-web 可构建）
 - [ ] Phase 1 — 数据库与基础设施
 - [ ] Phase 2 — Auth + User + Profile
 - [ ] Phase 3 — Goal + AI Followup
