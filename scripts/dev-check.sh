@@ -14,6 +14,19 @@ check() { # check <说明> <命令...>
 }
 
 echo "== dev-check =="
+# 自动加载根目录 .env（若存在；.env 不进 Git）
+if [ -f "$(dirname "$0")/../.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "$(dirname "$0")/../.env"
+  set +a
+fi
+# nvm 环境下自动切到 22（项目要求 Node >= 22，见 docs/RUNBOOK.md）
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  # shellcheck disable=SC1091
+  . "$HOME/.nvm/nvm.sh" >/dev/null 2>&1
+  nvm use 22 >/dev/null 2>&1 || true
+fi
 if [ -x "/Users/aadmin/tool/apache-maven-3.9.16/bin/mvn" ]; then
   check "Maven 3.9.16 (/Users/aadmin/tool/apache-maven-3.9.16)" /Users/aadmin/tool/apache-maven-3.9.16/bin/mvn -version
 else
