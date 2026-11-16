@@ -21,6 +21,9 @@ public interface GenerationTaskRepository extends JpaRepository<GenerationTask, 
     // —— 运行中任务检查（§24 幂等/防重复）——
     boolean existsByGoalIdAndStatusNotIn(Long goalId, List<String> statuses);
 
+    /** 用户是否存在运行中任务（首页聚合 §12.7）。 */
+    boolean existsByUserIdAndStatusNotIn(Long userId, List<String> statuses);
+
     // —— 受控状态迁移（乐观锁语义：仅当 from 匹配才生效，返回影响行数）——
 
     @Modifying

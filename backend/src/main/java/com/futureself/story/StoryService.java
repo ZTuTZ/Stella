@@ -36,6 +36,49 @@ public class StoryService {
         return toResponse(story);
     }
 
+    /** 故事列表分页（§12.5）。favorite=true 仅收藏；默认全部（ACTIVE + PASSED）。按创建时间倒序。 */
+    @Transactional(readOnly = true)
+    public StoryPage list(long userId, int page, int size, boolean favoriteOnly) {
+        var pageable = org.springframework.data.domain.PageRequest.of(
+                Math.max(page, 0), Math.min(Math.max(size, 1), 50),
+                org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Order.desc("createdAt"),
+                        org.springframework.data.domain.Sort.Order.desc("id")));
+        var result = favoriteOnly
+                ? storyRepository.findByUserIdAndStatusAndModerationStatusAndFavorite(
+                        userId, Story.STATUS_ACTIVE, Story.MODERATION_PASSED, true, pageable)
+                : storyRepository.findByUserIdAndStatusAndModerationStatus(
+                        userId, Story.STATUS_ACTIVE, Story.MODERATION_PASSED, pageable);
+        return new StoryPage(
+                result.getContent().stream().map(this::toResponse).toList(),
+                result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+    }
+
+    /** 收藏/取消收藏（§12.5）。 */
+    @Transactional
+    public Map<String, Object> setFavorite(long storyId, long userId, boolean favorite) {
+        Story story = storyRepository
+                .findByIdAndUserIdAndStatus(storyId, userId, Story.STATUS_ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORY_NOT_FOUND));
+        story.setFavorite(favorite);
+        storyRepository.save(story);
+        return Map.of("id", story.getId(), "favorite", story.isFavorite());
+    }
+
+    /** 软删除（§32.8）。 */
+    @Transactional
+    public Map<String, Object> deleteOwn(long storyId, long userId) {
+        Story story = storyRepository
+                .findByIdAndUserIdAndStatus(storyId, userId, Story.STATUS_ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORY_NOT_FOUND));
+        story.setStatus(Story.STATUS_DELETED);
+        storyRepository.save(story);
+        return Map.of("deleted", true);
+    }
+
+    public record StoryPage(java.util.List<StoryResponse> items, int page, int size, long totalElements, int totalPages) {
+    }
+
     /** 当前有效音频（§32.5）：非 SUPERSEDED 的最新一条；无音频时为 null。 */
     public Map<String, Object> audioOf(Story story) {
         return audioAssetRepository

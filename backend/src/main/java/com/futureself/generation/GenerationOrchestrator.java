@@ -30,6 +30,7 @@ import com.futureself.profile.ProfileService;
 import com.futureself.profile.api.LifeProfileResponse;
 import com.futureself.story.domain.Story;
 import com.futureself.story.domain.StoryRepository;
+import com.futureself.user.UserEventService;
 import com.futureself.user.UserService;
 import com.futureself.user.domain.AppUser;
 import com.futureself.config.AppAudioProperties;
@@ -76,6 +77,7 @@ public class GenerationOrchestrator {
     private final AppAudioProperties audioProps;
     private final ObjectMapper objectMapper;
     private final TransactionTemplate transactionTemplate;
+    private final UserEventService userEventService;
 
     public GenerationOrchestrator(GenerationTaskRepository taskRepository,
                                   StoryRepository storyRepository,
@@ -95,7 +97,8 @@ public class GenerationOrchestrator {
                                   AppTextAiProperties textAiProps,
                                   AppAudioProperties audioProps,
                                   ObjectMapper objectMapper,
-                                  TransactionTemplate transactionTemplate) {
+                                  TransactionTemplate transactionTemplate,
+                                  UserEventService userEventService) {
         this.taskRepository = taskRepository;
         this.storyRepository = storyRepository;
         this.audioAssetRepository = audioAssetRepository;
@@ -115,6 +118,7 @@ public class GenerationOrchestrator {
         this.audioProps = audioProps;
         this.objectMapper = objectMapper;
         this.transactionTemplate = transactionTemplate;
+        this.userEventService = userEventService;
     }
 
     /** 推进一个可执行任务的一个阶段；无任务返回 false。 */
@@ -340,6 +344,8 @@ public class GenerationOrchestrator {
             }
         });
         log.info("task text ready: taskId={} storyId={}", taskId, story.getId());
+        userEventService.record(task.getUserId(), UserEventService.EVENT_STORY_TEXT_READY, "STORY", story.getId(),
+                Map.of("taskId", task.getId()));
     }
 
     /** 音频提交（§15.2）：脚本处理 → submit → 建 audio_asset（SUBMITTED）→ AUDIO_PROCESSING。 */
@@ -482,6 +488,8 @@ public class GenerationOrchestrator {
                 taskRepository.markFinishedAt(task.getId(), LocalDateTime.now());
             });
             log.info("audio ready: taskId={} storyId={} storageKey={}", taskId, task.getStoryId(), stored.key());
+            userEventService.record(task.getUserId(), UserEventService.EVENT_AUDIO_READY, "STORY", task.getStoryId(),
+                    Map.of("taskId", task.getId(), "format", asset.getFormat()));
         } catch (BusinessException e) {
             markAssetFailed(asset, e.errorCode().name(), e.getMessage());
             handleFailure(taskId, GenerationTask.STAGE_STORAGE, e.errorCode().name(), e.getMessage());

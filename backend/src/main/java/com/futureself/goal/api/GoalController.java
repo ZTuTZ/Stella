@@ -5,6 +5,7 @@ import com.futureself.common.api.ApiResponse;
 import com.futureself.generation.GenerationTaskService;
 import com.futureself.goal.FollowupService;
 import com.futureself.goal.GoalService;
+import com.futureself.user.UserEventService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -34,17 +35,22 @@ public class GoalController {
     private final GoalService goalService;
     private final FollowupService followupService;
     private final GenerationTaskService taskService;
+    private final UserEventService userEventService;
 
-    public GoalController(GoalService goalService, FollowupService followupService, GenerationTaskService taskService) {
+    public GoalController(GoalService goalService, FollowupService followupService,
+                          GenerationTaskService taskService, UserEventService userEventService) {
         this.goalService = goalService;
         this.followupService = followupService;
         this.taskService = taskService;
+        this.userEventService = userEventService;
     }
 
     @PostMapping("/goals")
     public ApiResponse<com.futureself.goal.api.GoalResponse> create(@AuthenticationPrincipal CurrentUser currentUser,
                                                                     @Validated @RequestBody CreateGoalRequest request) {
-        return ApiResponse.ok(goalService.create(currentUser.userId(), request));
+        com.futureself.goal.api.GoalResponse created = goalService.create(currentUser.userId(), request);
+        userEventService.record(currentUser.userId(), UserEventService.EVENT_GOAL_CREATED, "GOAL", created.id(), null);
+        return ApiResponse.ok(created);
     }
 
     @GetMapping("/goals")
@@ -91,6 +97,7 @@ public class GoalController {
                                                           @PathVariable("id") long id,
                                                           @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
         GenerationTaskService.CreatedTask created = taskService.create(currentUser.userId(), id, idempotencyKey);
+        userEventService.record(currentUser.userId(), UserEventService.EVENT_STORY_REQUESTED, "GOAL", id, null);
         return ApiResponse.ok(Map.of("taskId", created.taskId(), "status", created.status()));
     }
 }

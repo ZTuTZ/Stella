@@ -50,16 +50,16 @@
 ### Stories
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| GET | `/api/v1/stories?page&size&favorite` | 列表 | 计划 Phase 7 |
+| GET | `/api/v1/stories?page&size&favorite` | 分页列表（favorite=true 仅收藏；created 倒序） | ✅ Phase 7 |
 | GET | `/api/v1/stories/{id}` | 详情（audio: {status,url,durationMs,format}） | ✅ Phase 4/5 |
-| PUT / DELETE | `/api/v1/stories/{id}/favorite`、`/api/v1/stories/{id}` | 收藏 / 软删除 | 计划 Phase 7 |
+| PUT / DELETE | `/api/v1/stories/{id}/favorite`、`/api/v1/stories/{id}` | 收藏 / 软删除 | ✅ Phase 7 |
 | POST | `/api/v1/stories/{id}/retry-audio` | 仅重试音频（在途幂等返回；终态重置回 AUDIO_SUBMITTING） | ✅ Phase 5 |
 
 ### Affirmations / Home
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
-| GET | `/api/v1/affirmations/today` | 当日幂等生成 | 计划 Phase 7 |
-| GET | `/api/v1/home` | 首页聚合 | 计划 Phase 7 |
+| GET | `/api/v1/affirmations/today` | 当日幂等生成（UNIQUE(user,date) 兜底并发；输出过审核） | ✅ Phase 7 |
+| GET | `/api/v1/home` | 首页聚合：昵称+今日/最近故事+肯定句+运行中任务 | ✅ Phase 7 |
 
 ### Admin（`/api/v1/admin/*`）
 `users` `users/{id}` `goals` `stories` `tasks` `tasks/{id}/retry` `prompts` `prompts/{id}` `ai-logs` `dashboard/summary` — 计划 Phase 8。

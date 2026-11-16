@@ -23,7 +23,7 @@
 | `prompt_template` | Prompt 版本 | UNIQUE(prompt_key, version)；同 key 仅一个 enabled |
 | `ai_call_log` | AI 调用诊断日志 | 不存 API key；存 request/response 摘要 |
 | `admin_user` | 后台管理员 | 独立凭证，不与小程序用户混用 |
-| `user_event`（可选） | 产品行为埋点 | 只记产品行为，不存故事正文 |
+| `user_event`（可选） | 产品行为埋点 | ✅ 已启用：ONBOARDING_COMPLETED/GOAL_CREATED/STORY_REQUESTED/STORY_TEXT_READY/AUDIO_READY/STORY_OPENED/STORY_FAVORITED |
 
 ## 状态机补充（Phase 4 落地说明）
 

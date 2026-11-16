@@ -2,6 +2,7 @@ package com.futureself.user.api;
 
 import com.futureself.auth.CurrentUser;
 import com.futureself.common.api.ApiResponse;
+import com.futureself.user.UserEventService;
 import com.futureself.user.UserService;
 import com.futureself.user.domain.AppUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeController {
 
     private final UserService userService;
+    private final UserEventService userEventService;
 
-    public MeController(UserService userService) {
+    public MeController(UserService userService, UserEventService userEventService) {
         this.userService = userService;
+        this.userEventService = userEventService;
     }
 
     @GetMapping("/me")
@@ -45,6 +48,7 @@ public class MeController {
     @PostMapping("/me/onboarding/complete")
     public ApiResponse<MeResponse> completeOnboarding(@AuthenticationPrincipal CurrentUser currentUser) {
         AppUser user = userService.completeOnboarding(currentUser.userId());
+        userEventService.record(user.getId(), UserEventService.EVENT_ONBOARDING_COMPLETED, "USER", user.getId(), null);
         return ApiResponse.ok(new MeResponse(user.getId(), user.getDisplayName(), user.isOnboardingCompleted()));
     }
 }
