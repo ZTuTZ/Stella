@@ -1,13 +1,14 @@
 package com.futureself.common.error;
 
 /**
- * 业务错误码与 HTTP 状态映射（实施文档 §22）。
+ * 业务错误码与 HTTP 状态映射（实施文档 §22 基础上补充 AUTH_FORBIDDEN）。
  * 前端不直接展示底层异常栈或供应商原始错误。
  */
 public enum ErrorCode {
 
     AUTH_REQUIRED(401),
     AUTH_INVALID_TOKEN(401),
+    AUTH_FORBIDDEN(403),
     WECHAT_LOGIN_FAILED(401),
     USER_DISABLED(403),
     PROFILE_NOT_FOUND(404),

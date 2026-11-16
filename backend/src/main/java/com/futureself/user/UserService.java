@@ -2,6 +2,8 @@ package com.futureself.user;
 
 import com.futureself.common.error.BusinessException;
 import com.futureself.common.error.ErrorCode;
+import com.futureself.user.domain.AdminUser;
+import com.futureself.user.domain.AdminUserRepository;
 import com.futureself.user.domain.AppUser;
 import com.futureself.user.domain.AppUserRepository;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 /**
  * 用户领域服务：查找/创建用户、活跃时间、当前用户资料（实施文档 §9.2）。
+ * 同时承载 admin_user 的查询（独立凭证体系 §10.10）。
  */
 @Service
 public class UserService {
@@ -22,9 +25,11 @@ public class UserService {
     public static final String STATUS_DISABLED = "DISABLED";
 
     private final AppUserRepository userRepository;
+    private final AdminUserRepository adminUserRepository;
 
-    public UserService(AppUserRepository userRepository) {
+    public UserService(AppUserRepository userRepository, AdminUserRepository adminUserRepository) {
         this.userRepository = userRepository;
+        this.adminUserRepository = adminUserRepository;
     }
 
     public Optional<AppUser> findByOpenid(String openid) {
@@ -46,6 +51,27 @@ public class UserService {
     /** 按主键加载（任意状态）；鉴权过滤器用于区分“不存在”与“被禁用”。 */
     public Optional<AppUser> findById(long userId) {
         return userRepository.findById(userId);
+    }
+
+    // —— admin_user（§10.10）——
+
+    public Optional<AdminUser> findAdminById(long adminId) {
+        return adminUserRepository.findById(adminId);
+    }
+
+    public Optional<AdminUser> findAdminByUsername(String username) {
+        return adminUserRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public AdminUser touchAdminLogin(AdminUser admin) {
+        admin.setLastLoginAt(LocalDateTime.now());
+        return adminUserRepository.save(admin);
+    }
+
+    @Transactional
+    public AdminUser saveAdmin(AdminUser admin) {
+        return adminUserRepository.save(admin);
     }
 
     /** 按主键加载；不存在或被禁用返回空（auth 层据此 fail-closed）。 */

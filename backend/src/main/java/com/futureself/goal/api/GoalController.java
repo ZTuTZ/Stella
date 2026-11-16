@@ -2,6 +2,10 @@ package com.futureself.goal.api;
 
 import com.futureself.auth.CurrentUser;
 import com.futureself.common.api.ApiResponse;
+import com.futureself.common.error.BusinessException;
+import com.futureself.common.error.ErrorCode;
+import com.futureself.common.ratelimit.RateLimitService;
+import com.futureself.config.AppRateLimitProperties;
 import com.futureself.generation.GenerationTaskService;
 import com.futureself.goal.FollowupService;
 import com.futureself.goal.GoalService;
@@ -36,18 +40,27 @@ public class GoalController {
     private final FollowupService followupService;
     private final GenerationTaskService taskService;
     private final UserEventService userEventService;
+    private final RateLimitService rateLimitService;
+    private final AppRateLimitProperties rateLimitProps;
 
     public GoalController(GoalService goalService, FollowupService followupService,
-                          GenerationTaskService taskService, UserEventService userEventService) {
+                          GenerationTaskService taskService, UserEventService userEventService,
+                          RateLimitService rateLimitService, AppRateLimitProperties rateLimitProps) {
         this.goalService = goalService;
         this.followupService = followupService;
         this.taskService = taskService;
         this.userEventService = userEventService;
+        this.rateLimitService = rateLimitService;
+        this.rateLimitProps = rateLimitProps;
     }
 
     @PostMapping("/goals")
     public ApiResponse<com.futureself.goal.api.GoalResponse> create(@AuthenticationPrincipal CurrentUser currentUser,
                                                                     @Validated @RequestBody CreateGoalRequest request) {
+        // 限流：创建 Goal 30 次/小时/用户（§24）
+        if (!rateLimitService.allowHourly(currentUser.userId(), "goal-create", rateLimitProps.goalCreatePerHour())) {
+            throw new BusinessException(ErrorCode.RATE_LIMITED);
+        }
         com.futureself.goal.api.GoalResponse created = goalService.create(currentUser.userId(), request);
         userEventService.record(currentUser.userId(), UserEventService.EVENT_GOAL_CREATED, "GOAL", created.id(), null);
         return ApiResponse.ok(created);

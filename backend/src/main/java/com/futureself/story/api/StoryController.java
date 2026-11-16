@@ -2,6 +2,10 @@ package com.futureself.story.api;
 
 import com.futureself.auth.CurrentUser;
 import com.futureself.common.api.ApiResponse;
+import com.futureself.common.error.BusinessException;
+import com.futureself.common.error.ErrorCode;
+import com.futureself.common.ratelimit.RateLimitService;
+import com.futureself.config.AppRateLimitProperties;
 import com.futureself.generation.GenerationTaskService;
 import com.futureself.story.StoryService;
 import com.futureself.story.api.StoryResponse;
@@ -29,12 +33,17 @@ public class StoryController {
     private final StoryService storyService;
     private final GenerationTaskService taskService;
     private final UserEventService userEventService;
+    private final RateLimitService rateLimitService;
+    private final AppRateLimitProperties rateLimitProps;
 
     public StoryController(StoryService storyService, GenerationTaskService taskService,
-                           UserEventService userEventService) {
+                           UserEventService userEventService,
+                           RateLimitService rateLimitService, AppRateLimitProperties rateLimitProps) {
         this.storyService = storyService;
         this.taskService = taskService;
         this.userEventService = userEventService;
+        this.rateLimitService = rateLimitService;
+        this.rateLimitProps = rateLimitProps;
     }
 
     @GetMapping("/stories/{id}")
@@ -74,10 +83,13 @@ public class StoryController {
         return ApiResponse.ok(storyService.deleteOwn(id, currentUser.userId()));
     }
 
-    /** 仅重试音频（§20.4：文本完成、音频失败的任务）。 */
+    /** 仅重试音频（§20.4：文本完成、音频失败的任务）；限流 5 次/日/故事（§24）。 */
     @PostMapping("/stories/{id}/retry-audio")
     public ApiResponse<Map<String, Object>> retryAudio(@AuthenticationPrincipal CurrentUser currentUser,
                                                        @PathVariable("id") long id) {
+        if (!rateLimitService.allowDailyScoped(currentUser.userId(), "retry-audio", id, rateLimitProps.retryAudioPerDayPerStory())) {
+            throw new BusinessException(ErrorCode.RATE_LIMITED);
+        }
         return ApiResponse.ok(taskService.retryAudio(currentUser.userId(), id));
     }
 }

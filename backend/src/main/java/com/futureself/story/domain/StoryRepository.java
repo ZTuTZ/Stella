@@ -3,6 +3,8 @@ package com.futureself.story.domain;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,4 +33,18 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     /** 今日最近一条（首页主卡优先）。 */
     Optional<Story> findTopByUserIdAndStatusAndModerationStatusAndCreatedAtBetweenOrderByCreatedAtDesc(
             Long userId, String status, String moderationStatus, LocalDateTime start, LocalDateTime end);
+
+    // —— Admin / Cleanup（Phase 8）——
+
+    /** 后台分页：userId/status 可空（含 BLOCKED/DELETED）。 */
+    @Query("select s from Story s where (:userId is null or s.userId = :userId) and (:status is null or s.status = :status)")
+    Page<Story> adminPage(@Param("userId") Long userId, @Param("status") String status, Pageable pageable);
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    /** 已删除故事中超过保留期的（音频物理清理 §25.2）。 */
+    List<Story> findByStatusAndUpdatedAtBefore(String status, LocalDateTime time);
+
+    /** 注销清理（§25.3）：用户全部 ACTIVE 故事。 */
+    List<Story> findByUserIdAndStatus(Long userId, String status);
 }

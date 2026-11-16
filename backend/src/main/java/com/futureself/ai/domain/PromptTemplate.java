@@ -91,6 +91,14 @@ public class PromptTemplate {
         return notes;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
     public void setPromptKey(String promptKey) {
         this.promptKey = promptKey;
     }

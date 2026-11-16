@@ -2,7 +2,9 @@ package com.futureself.generation;
 
 import com.futureself.common.error.BusinessException;
 import com.futureself.common.error.ErrorCode;
+import com.futureself.common.ratelimit.RateLimitService;
 import com.futureself.config.AppGenerationProperties;
+import com.futureself.config.AppRateLimitProperties;
 import com.futureself.audio.domain.AudioAsset;
 import com.futureself.audio.domain.AudioAssetRepository;
 import com.futureself.generation.domain.GenerationTask;
@@ -45,6 +47,8 @@ public class GenerationTaskService {
     private final StringRedisTemplate redis;
     private final AppGenerationProperties generationProps;
     private final TransactionTemplate transactionTemplate;
+    private final RateLimitService rateLimitService;
+    private final AppRateLimitProperties rateLimitProps;
 
     public GenerationTaskService(GenerationTaskRepository taskRepository,
                                  GoalService goalService,
@@ -52,7 +56,9 @@ public class GenerationTaskService {
                                  AudioAssetRepository audioAssetRepository,
                                  StringRedisTemplate redis,
                                  AppGenerationProperties generationProps,
-                                 TransactionTemplate transactionTemplate) {
+                                 TransactionTemplate transactionTemplate,
+                                 RateLimitService rateLimitService,
+                                 AppRateLimitProperties rateLimitProps) {
         this.taskRepository = taskRepository;
         this.goalService = goalService;
         this.storyRepository = storyRepository;
@@ -60,12 +66,18 @@ public class GenerationTaskService {
         this.redis = redis;
         this.generationProps = generationProps;
         this.transactionTemplate = transactionTemplate;
+        this.rateLimitService = rateLimitService;
+        this.rateLimitProps = rateLimitProps;
     }
 
     public record CreatedTask(long taskId, String status) {
     }
 
     public CreatedTask create(long userId, long goalId, String idempotencyKey) {
+        // 限流：生成故事 10 次/日/用户（§24）
+        if (!rateLimitService.allowDaily(userId, "story-generate", rateLimitProps.storyGeneratePerDay())) {
+            throw new BusinessException(ErrorCode.RATE_LIMITED);
+        }
         String redisKey = idempotencyKey == null || idempotencyKey.isBlank()
                 ? null : IDEMPOTENCY_PREFIX + userId + ":" + idempotencyKey.trim();
         if (redisKey != null) {

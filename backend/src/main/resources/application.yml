@@ -55,6 +55,16 @@ app:
     mock-login: ${WECHAT_MOCK_LOGIN:false}
     api-base-url: ${WECHAT_API_BASE_URL:https://api.weixin.qq.com}
     timeout-ms: 5000
+  admin:
+    bootstrap-username: ${ADMIN_BOOTSTRAP_USERNAME:admin}
+    bootstrap-password: ${ADMIN_BOOTSTRAP_PASSWORD:}
+  rate-limit:
+    goal-create-per-hour: ${RATE_LIMIT_GOAL_PER_HOUR:30}
+    followup-per-hour: ${RATE_LIMIT_FOLLOWUP_PER_HOUR:20}
+    story-generate-per-day: ${RATE_LIMIT_STORY_PER_DAY:10}
+    retry-audio-per-day-per-story: ${RATE_LIMIT_RETRY_AUDIO_PER_DAY:5}
+  retention:
+    deleted-audio-days: ${RETENTION_DELETED_AUDIO_DAYS:30}
   generation:
     worker-delay-ms: 1500
     max-retry-count: 3

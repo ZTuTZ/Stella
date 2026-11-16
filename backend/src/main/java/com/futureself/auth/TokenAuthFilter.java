@@ -5,6 +5,7 @@ import com.futureself.auth.application.TokenService;
 import com.futureself.common.api.ApiResponse;
 import com.futureself.common.error.ErrorCode;
 import com.futureself.user.UserService;
+import com.futureself.user.domain.AdminUser;
 import com.futureself.user.domain.AppUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -51,6 +52,33 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith(BEARER_PREFIX)) {
             String token = header.substring(BEARER_PREFIX.length()).trim();
+            Optional<String> raw = tokenService.resolveRaw(token);
+
+            if (raw.isEmpty()) {
+                log.debug("auth rejected: invalid or expired token");
+                writeError(response, HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_REQUIRED, "invalid or expired token");
+                return;
+            }
+
+            // 管理后台 token（admin:{id}，§10.10 独立凭证）
+            if (raw.get().startsWith("admin:")) {
+                Optional<Long> adminId = tokenService.resolveAdminId(token);
+                Optional<AdminUser> admin = adminId.flatMap(userService::findAdminById);
+                if (admin.isEmpty()) {
+                    log.debug("auth rejected: admin not found, adminId={}", adminId);
+                    writeError(response, HttpStatus.UNAUTHORIZED, ErrorCode.AUTH_REQUIRED, "invalid or expired token");
+                    return;
+                }
+                AdminUser a = admin.get();
+                CurrentUser principal = new CurrentUser(a.getId(), a.getUsername(), "ADMIN", a.getStatus());
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(principal, null, List.of());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                chain.doFilter(request, response);
+                return;
+            }
+
             Optional<Long> userId = tokenService.resolveUserId(token);
 
             if (userId.isEmpty()) {

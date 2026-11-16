@@ -9,8 +9,11 @@ import com.futureself.ai.text.PromptFiller;
 import com.futureself.ai.text.TextAiProvider;
 import com.futureself.ai.text.TextAiRequest;
 import com.futureself.common.error.BusinessException;
+import com.futureself.common.error.ErrorCode;
 import com.futureself.common.logging.RequestIdFilter;
+import com.futureself.common.ratelimit.RateLimitService;
 import com.futureself.config.AppTextAiProperties;
+import com.futureself.config.AppRateLimitProperties;
 import com.futureself.goal.api.FollowupAnswersRequest;
 import com.futureself.goal.api.FollowupQuestionsResponse;
 import com.futureself.goal.domain.GoalRepository;
@@ -54,6 +57,8 @@ public class FollowupService {
     private final AiCallLogService aiCallLogService;
     private final AppTextAiProperties textAiProps;
     private final PromptContextAssembler contextAssembler;
+    private final RateLimitService rateLimitService;
+    private final AppRateLimitProperties rateLimitProps;
 
     public FollowupService(GoalService goalService,
                            GoalRepository goalRepository,
@@ -62,7 +67,9 @@ public class FollowupService {
                            TextAiProvider textAiProvider,
                            AiCallLogService aiCallLogService,
                            AppTextAiProperties textAiProps,
-                           PromptContextAssembler contextAssembler) {
+                           PromptContextAssembler contextAssembler,
+                           RateLimitService rateLimitService,
+                           AppRateLimitProperties rateLimitProps) {
         this.goalService = goalService;
         this.goalRepository = goalRepository;
         this.profileService = profileService;
@@ -71,10 +78,16 @@ public class FollowupService {
         this.aiCallLogService = aiCallLogService;
         this.textAiProps = textAiProps;
         this.contextAssembler = contextAssembler;
+        this.rateLimitService = rateLimitService;
+        this.rateLimitProps = rateLimitProps;
     }
 
     @Transactional
     public FollowupQuestionsResponse generateQuestions(long goalId, long userId) {
+        // 限流：AI 追问 20 次/小时/用户（§24）
+        if (!rateLimitService.allowHourly(userId, "followup", rateLimitProps.followupPerHour())) {
+            throw new BusinessException(ErrorCode.RATE_LIMITED);
+        }
         ManifestationGoal goal = goalService.loadOwnGoal(goalId, userId);
         LifeProfileResponse profile = profileService.getProfile(userId);
 

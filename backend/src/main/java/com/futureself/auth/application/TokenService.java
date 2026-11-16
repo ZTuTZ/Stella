@@ -37,6 +37,7 @@ public class TokenService {
     public record IssuedToken(String accessToken, long expiresInSeconds) {
     }
 
+    /** 小程序用户 token：存 userId。 */
     public IssuedToken issue(long userId) {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
@@ -46,16 +47,47 @@ public class TokenService {
         return new IssuedToken(token, authProps.tokenTtlSeconds());
     }
 
-    public Optional<Long> resolveUserId(String token) {
+    /** 管理后台 token：存 "admin:{adminId}"（admin_user 独立凭证，§10.10）。 */
+    public IssuedToken issueAdmin(long adminId) {
+        byte[] bytes = new byte[32];
+        RANDOM.nextBytes(bytes);
+        String token = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        Duration ttl = Duration.ofSeconds(authProps.tokenTtlSeconds());
+        redis.opsForValue().set(KEY_PREFIX + sha256Hex(token), "admin:" + adminId, ttl);
+        return new IssuedToken(token, authProps.tokenTtlSeconds());
+    }
+
+    /** 解析 token 原始值：数字 = 小程序用户 id；"admin:{id}" = 管理员。 */
+    public Optional<String> resolveRaw(String token) {
         try {
-            String userId = redis.opsForValue().get(KEY_PREFIX + sha256Hex(token));
-            if (userId == null || userId.isBlank()) {
+            String value = redis.opsForValue().get(KEY_PREFIX + sha256Hex(token));
+            if (value == null || value.isBlank()) {
                 return Optional.empty();
             }
-            return Optional.of(Long.parseLong(userId));
+            return Optional.of(value);
         } catch (RuntimeException e) {
             // Redis 不可用时鉴权 fail-closed（§17：核心数据仍在数据库，token 缓存不可降级为放行）
             log.warn("token resolve failed: {}", e.getClass().getSimpleName());
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Long> resolveUserId(String token) {
+        return resolveRaw(token)
+                .filter(v -> !v.startsWith("admin:"))
+                .flatMap(v -> parseLongSafe(v));
+    }
+
+    public Optional<Long> resolveAdminId(String token) {
+        return resolveRaw(token)
+                .filter(v -> v.startsWith("admin:"))
+                .flatMap(v -> parseLongSafe(v.substring("admin:".length())));
+    }
+
+    private Optional<Long> parseLongSafe(String value) {
+        try {
+            return Optional.of(Long.parseLong(value));
+        } catch (NumberFormatException e) {
             return Optional.empty();
         }
     }
