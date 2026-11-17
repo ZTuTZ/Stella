@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend (mvn test)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: 202151259
+          MYSQL_DATABASE: future_self_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -p202151259"
+          --health-interval=10s --health-timeout=5s --health-retries=20
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Run backend tests
+        env:
+          TEST_DB_URL: jdbc:mysql://127.0.0.1:3306/future_self_test?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+          DB_USERNAME: root
+          DB_PASSWORD: "202151259"
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: "6379"
+        run: mvn -B -f backend/pom.xml test
+
+  admin-web:
+    name: admin-web (build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: admin-web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  miniapp:
+    name: miniapp (tsc)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: miniapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: miniapp/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+
+  secret-scan:
+    name: secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block committed env files and real-looking credentials
+        run: |
+          set -e
+          tracked_env="$(git ls-files | grep -E '(^|/)\.env$' || true)"
+          if [ -n "$tracked_env" ]; then
+            echo "::error::.env must never be committed: $tracked_env"
+            exit 1
+          fi
+          keys="$(git ls-files | grep -E '\.(pem|key)$' || true)"
+          if [ -n "$keys" ]; then
+            echo "::error::private key files must not be committed: $keys"
+            exit 1
+          fi
+          # 真实腾讯云/阿里云/DeepSeek key 形态（排除文档与测试 fixture）
+          hits="$(git grep -nE '(AKID[0-9A-Za-z]{20,}|LTAI[0-9A-Za-z]{12,}|sk-[0-9a-f]{32})' -- \
+            ':!docs' ':!*.md' ':!backend/src/test' ':!.github' || true)"
+          if [ -n "$hits" ]; then
+            echo "::error::possible real credential committed:"
+            echo "$hits"
+            exit 1
+          fi
+          echo "secret scan passed"
