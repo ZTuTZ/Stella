@@ -130,7 +130,12 @@ public class AffirmationService {
                 600,
                 currentRequestId());
 
+        // H-09：最终上下文审核，拦截则不调用 LLM
         long startedAt = System.currentTimeMillis();
+        if (moderationProvider.check(new ModerationRequest("AFFIRMATION_INPUT", userId, request.userPrompt())).blocked()) {
+            recordCall(userId, request, startedAt, false, "MODERATION_BLOCKED", null);
+            throw new BusinessException(ErrorCode.MODERATION_BLOCKED);
+        }
         AffirmationItemsResult result;
         try {
             result = textAiProvider.generateStructured(request, AffirmationItemsResult.class);

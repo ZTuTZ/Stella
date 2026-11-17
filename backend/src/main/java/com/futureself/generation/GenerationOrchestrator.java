@@ -1,6 +1,7 @@
 package com.futureself.generation;
 
 import com.futureself.ai.AiCallLogService;
+import com.futureself.ai.AiLogSanitizer;
 import com.futureself.ai.PromptTemplateService;
 import com.futureself.ai.audio.AiAudioProvider;
 import com.futureself.ai.audio.AudioGenerationRequest;
@@ -251,6 +252,16 @@ public class GenerationOrchestrator {
                 0.8,
                 3000,
                 currentRequestId());
+
+        // H-09：最终上下文（档案 + 目标 + 追问回答）统一审核，拦截则不调用真实 LLM
+        var inputCheck = moderationProvider.check(
+                new ModerationRequest("STORY_INPUT", task.getUserId(), userPrompt));
+        if (inputCheck.blocked()) {
+            log.warn("story input blocked: taskId={} category={}", taskId, inputCheck.category());
+            transactionTemplate.executeWithoutResult(tx -> taskRepository.markBlocked(
+                    task.getId(), GenerationTask.STATUS_TEXT_GENERATING, inputCheck.reason(), LocalDateTime.now()));
+            return;
+        }
 
         long startedAt = System.currentTimeMillis();
         StoryGenerationResult result;
@@ -590,10 +601,9 @@ public class GenerationOrchestrator {
 
     private String requestSummary(TextAiRequest request) {
         try {
-            return objectMapper.writeValueAsString(Map.of(
-                    "operation", request.operation() == null ? "" : request.operation(),
-                    "systemPrompt", PromptFiller.truncate(request.systemPrompt(), 200),
-                    "userPrompt", PromptFiller.truncate(request.userPrompt(), 200)));
+            // H-07：只记录 operation/字符数/指纹，绝不保存 prompt 正文
+            return objectMapper.writeValueAsString(AiLogSanitizer.promptSummary(
+                    request.operation(), request.systemPrompt(), request.userPrompt()));
         } catch (RuntimeException e) {
             return null;
         }
@@ -601,9 +611,7 @@ public class GenerationOrchestrator {
 
     private String requestSummary(String script) {
         try {
-            return objectMapper.writeValueAsString(Map.of(
-                    "textLength", script == null ? 0 : script.length(),
-                    "textPreview", PromptFiller.truncate(script, 200)));
+            return objectMapper.writeValueAsString(AiLogSanitizer.textSummary(script));
         } catch (RuntimeException e) {
             return null;
         }

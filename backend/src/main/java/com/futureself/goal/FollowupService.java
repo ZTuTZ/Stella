@@ -18,6 +18,8 @@ import com.futureself.goal.api.FollowupAnswersRequest;
 import com.futureself.goal.api.FollowupQuestionsResponse;
 import com.futureself.goal.domain.GoalRepository;
 import com.futureself.goal.domain.ManifestationGoal;
+import com.futureself.moderation.ModerationProvider;
+import com.futureself.moderation.ModerationRequest;
 import com.futureself.profile.ProfileService;
 import com.futureself.profile.api.LifeProfileResponse;
 import org.slf4j.Logger;
@@ -59,6 +61,7 @@ public class FollowupService {
     private final PromptContextAssembler contextAssembler;
     private final RateLimitService rateLimitService;
     private final AppRateLimitProperties rateLimitProps;
+    private final ModerationProvider moderationProvider;
 
     public FollowupService(GoalService goalService,
                            GoalRepository goalRepository,
@@ -69,7 +72,8 @@ public class FollowupService {
                            AppTextAiProperties textAiProps,
                            PromptContextAssembler contextAssembler,
                            RateLimitService rateLimitService,
-                           AppRateLimitProperties rateLimitProps) {
+                           AppRateLimitProperties rateLimitProps,
+                           ModerationProvider moderationProvider) {
         this.goalService = goalService;
         this.goalRepository = goalRepository;
         this.profileService = profileService;
@@ -80,6 +84,7 @@ public class FollowupService {
         this.contextAssembler = contextAssembler;
         this.rateLimitService = rateLimitService;
         this.rateLimitProps = rateLimitProps;
+        this.moderationProvider = moderationProvider;
     }
 
     @Transactional
@@ -104,7 +109,12 @@ public class FollowupService {
                 800,
                 currentRequestId());
 
+        // H-09：最终上下文审核（含 profile/followup answer），拦截则不调用 LLM
         long startedAt = System.currentTimeMillis();
+        if (moderationProvider.check(new ModerationRequest("FOLLOWUP_INPUT", userId, userPrompt)).blocked()) {
+            recordAiCall(userId, null, request, startedAt, false, "MODERATION_BLOCKED", null);
+            throw new BusinessException(ErrorCode.MODERATION_BLOCKED);
+        }
         FollowupQuestionsResult result;
         try {
             result = textAiProvider.generateStructured(request, FollowupQuestionsResult.class);
@@ -221,13 +231,11 @@ public class FollowupService {
         return new Integer[]{raw[0], raw[1]};
     }
 
-    /** 脱敏请求摘要：只存 prompt 前 200 字符（§23）。 */
+    /** H-07：只存 operation / 字符数 / 指纹，不保存 prompt 正文。 */
     private String requestSummary(TextAiRequest request) {
         try {
-            return JsonSupport.write(Map.of(
-                    "operation", orEmpty(request.operation()),
-                    "systemPrompt", PromptFiller.truncate(request.systemPrompt(), 200),
-                    "userPrompt", PromptFiller.truncate(request.userPrompt(), 200)));
+            return JsonSupport.write(com.futureself.ai.AiLogSanitizer.promptSummary(
+                    orEmpty(request.operation()), request.systemPrompt(), request.userPrompt()));
         } catch (RuntimeException e) {
             return null;
         }

@@ -102,7 +102,7 @@ public class OpenAiCompatibleTextAiProvider implements TextAiProvider {
             UsageHolder.set(inputTokens, outputTokens);
             return result;
         } catch (JacksonException e) {
-            log.warn("text ai invalid json: {}", truncate(cleaned));
+            log.warn("text ai invalid json: {}", com.futureself.ai.AiLogSanitizer.describe(cleaned));
             throw new BusinessException(ErrorCode.TEXT_AI_INVALID_RESPONSE);
         }
     }
