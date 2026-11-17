@@ -109,6 +109,21 @@ READY 返回项目内 fixture（`AI_AUDIO_MOCK_FIXTURE_DIR`，启动时自动生
 - 音频清理（§25.2）：每日 03:05 物理删除超期（默认 30 天）已删除故事的音频文件。
 - 注销（§25.3）：`UserDeletionService.requestDeletion(userId)` 已预留（禁用账号+软删数据），UI 暂不开放。
 
+## 文本 LLM（OpenAI 兼容）
+
+默认 `AI_TEXT_PROVIDER=mock`（无 key 也能完整演示）。接真实模型只需三项：
+
+| 变量 | DeepSeek 示例 | 说明 |
+|---|---|---|
+| `AI_TEXT_PROVIDER` | `openai` | 通用 OpenAI 兼容实现 |
+| `AI_TEXT_BASE_URL` | `https://api.deepseek.com/v1` | 请求 `{baseUrl}/chat/completions` |
+| `AI_TEXT_MODEL` | `deepseek-chat` | 记录到 story.model 与 ai_call_log |
+| `AI_TEXT_API_KEY` | `sk-...` | 仅本地 .env |
+
+其他兼容端点：阿里云百炼 `https://dashscope.aliyuncs.com/compatible-mode/v1`（qwen-plus/qwen-max）、智谱 `https://open.bigmodel.cn/api/paas/v4`（glm-4-plus）等。
+要求模型支持 `response_format=json_object`；不支持时需给 Provider 加开关（当前固定发送）。
+故事长度由 `prompt_template` 的 STORY 模板控制（默认 900~1800 中文字），改 Prompt 请走后台新建版本。
+
 ## Mock 微信登录
 
 `WECHAT_MOCK_LOGIN=true`（默认 `.env` 已开）时，`POST /api/v1/auth/wechat/login` 不访问微信：
