@@ -10,6 +10,8 @@ spring:
 
 app:
   storage:
+    # 测试固定本地存储，避免继承本地 .env 的 oss 配置做真实网络调用
+    provider: local
     local-dir: target/test-media
   wechat:
     mock-login: true

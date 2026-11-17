@@ -12,6 +12,7 @@
 |---|---|
 | 后端 `backend/` | Java 21 · Spring Boot 4.1.x 单体 · Spring Security/JPA · Flyway |
 | 数据库 | MySQL 8（唯一事实源）· Redis（缓存/限流/幂等/锁） |
+| 存储 | 本地文件（dev）/ 阿里云 OSS（`STORAGE_PROVIDER=oss`，纯 REST + V1 签名） |
 | 小程序 `miniapp/` | 微信原生 + TypeScript + WXML/WXSS |
 | 管理后台 `admin-web/` | Vue 3 + TS + Vite + Pinia + Element Plus |
 

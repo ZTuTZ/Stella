@@ -57,6 +57,21 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 本机全局 settings.xml 激活了云效私有仓库 profile（仅 deploy 用），其域名对 JVM TLS 握手失败会导致依赖解析中断。
 **本项目构建统一使用项目级配置**：`mvn -s scripts/maven-settings.xml ...`（只走阿里云公共镜像，本地仓库路径与全局一致）。
 
+## 对象存储（阿里云 OSS）
+
+`STORAGE_PROVIDER=oss` 时音频上传 OSS，故事详情 `audio.url` 为 OSS 公网地址（`storage_key` 仍记录对象 key）。
+`local` 模式落盘 `backend/data/media` 并经 `/media/**` 提供（MediaController 常驻，可继续播放历史本地音频）。
+
+配置（仅本地 `.env`，禁止提交）：`OSS_ENDPOINT` / `OSS_BUCKET` / `OSS_ACCESS_KEY_ID` / `OSS_ACCESS_KEY_SECRET`；
+可选 `OSS_PUBLIC_BASE_URL` 配 CDN 或自定义域名。
+
+实现要点（`OssStorageService`，纯 REST + OSS V1 签名，无 SDK 依赖）：
+- **必须三级域名**：`https://{bucket}.{endpoint-host}/{key}`；本账号 path-style 会报 `SecondLevelDomainForbidden`；
+- 该场景下 OSS 校验的 CanonicalizedResource 仍为 `/{bucket}/{key}`；
+- 文件通过 `Content-MD5` 校验；`HEAD` 用于存在性/元数据；`DELETE` 支持清理任务；
+- **Bucket 需公共读**（或配 CDN 公共域名）小程序才能直接播放；且需把小程序合法域名指向该域名（devtools 可临时勾选“不校验合法域名”）。
+- 契约测试：`OSS_CONTRACT_TEST=true mvn test -Dtest=OssContractTest`（真实上传/HEAD/公网 GET/删除）。
+
 ## 音频 API 文档
 
 放入 `docs/external/audio/` 后，按实施文档 §15.5 / §37 执行真实 Provider 接入。
