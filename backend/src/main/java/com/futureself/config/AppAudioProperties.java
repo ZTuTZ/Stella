@@ -18,7 +18,8 @@ public record AppAudioProperties(
         String mockFixtureDir,
         String secretId,
         String secretKey,
-        String region) {
+        String region,
+        String syncOutputDir) {
 
     public AppAudioProperties {
         if (provider == null || provider.isBlank()) {
@@ -47,6 +48,9 @@ public record AppAudioProperties(
         }
         if (region == null || region.isBlank()) {
             region = "ap-guangzhou";
+        }
+        if (syncOutputDir == null || syncOutputDir.isBlank()) {
+            syncOutputDir = "./data/tencent-sync";
         }
     }
 }

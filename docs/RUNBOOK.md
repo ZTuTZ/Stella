@@ -61,6 +61,19 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 
 放入 `docs/external/audio/` 后，按实施文档 §15.5 / §37 执行真实 Provider 接入。
 
+## 真实音频（腾讯云 TTS）
+
+两种实现，改 `AI_AUDIO_PROVIDER` 即可切换（业务层零改动）：
+
+| 值 | 接口 | 需要 |
+|---|---|---|
+| `mock` | 本地静音 WAV | 无 |
+| `tencent-sync` | 基础同步 `TextToVoice` + 150 字分段拼接 | **免费额度**：控制台 [资源包页](https://console.cloud.tencent.com/tts/resourcebundle) 领取（精品 800 万 / 大模型 10 万字符） |
+| `tencent` | 长文本异步 `CreateTtsTask` | **付费资源包**（长文本无免费额度） |
+
+配置：`AI_AUDIO_VOICE_ID`（如 301001 大模型 / 101001 精品）、`AI_AUDIO_TENCENT_SECRET_ID/KEY`（仅 .env）。
+契约测试：`AI_AUDIO_TENCENT_CONTRACT=true mvn test -Dtest=TencentCloudAudioContractTest`（会真实计费，少量字符）。
+
 ## Mock 音频
 
 `AI_AUDIO_PROVIDER=mock`（默认）时：submit 即返回模拟 taskId，`AI_AUDIO_MOCK_DELAY_MS`（默认 3000）后 READY；

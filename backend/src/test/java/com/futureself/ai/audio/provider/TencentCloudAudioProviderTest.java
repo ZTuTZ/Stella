@@ -83,7 +83,7 @@ class TencentCloudAudioProviderTest {
     @Test
     void submitWithoutCredentialsFailsFast() {
         AppAudioProperties props = new AppAudioProperties(
-                "tencent", "", "", "301001", 0, "target/test-media/mock-audio", "", "", "ap-guangzhou");
+                "tencent", "", "", "301001", 0, "target/test-media/mock-audio", "", "", "ap-guangzhou", "target/test-media/tencent-sync");
         TencentCloudAudioProvider provider = new TencentCloudAudioProvider(props, objectMapper);
 
         assertThatThrownBy(() -> provider.submit(new com.futureself.ai.audio.AudioGenerationRequest(

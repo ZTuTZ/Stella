@@ -1,6 +1,7 @@
 package com.futureself.ai.audio;
 
 import com.futureself.ai.audio.provider.TencentCloudAudioProvider;
+import com.futureself.ai.audio.provider.TencentCloudSyncAudioProvider;
 import com.futureself.config.AppAudioProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,12 @@ public class AudioProviderConfig {
     @ConditionalOnProperty(name = "app.ai.audio.provider", havingValue = "tencent")
     public AiAudioProvider tencentCloudAudioProvider(AppAudioProperties props, ObjectMapper objectMapper) {
         return new TencentCloudAudioProvider(props, objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.ai.audio.provider", havingValue = "tencent-sync")
+    public AiAudioProvider tencentCloudSyncAudioProvider(AppAudioProperties props, ObjectMapper objectMapper) {
+        return new TencentCloudSyncAudioProvider(props, objectMapper);
     }
 
     /** 启动时确保 Mock fixture（2 秒静音 WAV）存在，供转存与播放联调。 */

@@ -24,6 +24,23 @@
 
 故事正文 900~1800 字，长文本接口一次合成整篇，且与既有 `submit → query → STORAGE` 异步状态机天然匹配。
 
+### 1.1 备选：`tencent-sync`（基础同步接口 + 分段拼接，可用免费额度）
+
+长文本接口**无免费额度**，账号未购买资源包时为 `UnsupportedOperation.PkgExhausted`。
+为此提供同一供应商的第二个实现 `tencent-sync`：
+
+| 项 | 说明 |
+|---|---|
+| 接口 | `TextToVoice`（同步，base64 返回） |
+| 分段 | `AudioTextSegmenter`：按句末标点切句 → 贪心打包 ≤150 字符；超长单句按逗号/硬切 |
+| 合成节奏 | **每个 worker tick 合成一段**（避免长时间阻塞 worker），全部完成后写出临时 mp3 |
+| 拼接 | `Mp3Concatenator`：逐段剥离开头 ID3v2 标签后按字节串联 |
+| 结果 | 本地 `AI_AUDIO_SYNC_OUTPUT_DIR`（默认 `./data/tencent-sync`）下的 `file:` URL → 由 `AudioTransferService` 转存 |
+| 状态 | 内存态；重启后未知 taskId → `TENCENT_SYNC_STATE_LOST` → 任务重试重新提交（幂等） |
+| 免费额度 | 需在控制台领取：精品 800 万 / 大模型 10 万 / 超自然 2 万字符（仅通用合成接口） |
+| 音色 | 通用合成音色（如 301001 大模型、101001 精品） |
+| 局限 | 每段一次 HTTP（约 2~4s），整篇 8~12 段；mp3 拼接在极少数解码器可能有边界毛刺 |
+
 ## 2. 鉴权
 
 - 签名：**TC3-HMAC-SHA256**（京东云/腾讯云 API 3.0 标准），实现于 `TencentCloudSigner`。
@@ -98,11 +115,12 @@
 app:
   ai:
     audio:
-      provider: tencent        # mock | tencent
-      voice-id: 301001         # 长文本音色列表中的大模型音色 ID
+      provider: tencent        # mock | tencent | tencent-sync
+      voice-id: 301001         # 长文本音色 ID / 通用音色 ID（两种 Provider 共用配置位）
       secret-id: ${AI_AUDIO_TENCENT_SECRET_ID:}
       secret-key: ${AI_AUDIO_TENCENT_SECRET_KEY:}
       region: ${AI_AUDIO_TENCENT_REGION:ap-guangzhou}
+      sync-output-dir: ${AI_AUDIO_SYNC_OUTPUT_DIR:./data/tencent-sync}
 ```
 
 切换方式：只改 `AI_AUDIO_PROVIDER`，业务层与状态机零改动（§15.5 第 4 条）。
@@ -110,6 +128,8 @@ app:
 ## 8. 未决/已知约束
 
 - **资源包**：长文本接口无免费额度；账号需在 [语音合成控制台](https://console.cloud.tencent.com/tts) 购买资源包，否则调用返回 `UnsupportedOperation.PkgExhausted`。
+  - 免费路径：`tencent-sync` + 控制台领取免费额度（精品 800 万 / 大模型 10 万字符）。
+- 契约测试：`AI_AUDIO_TENCENT_CONTRACT=true` 显式开启（避免 CI 扣费/依赖资源包）。
 - 长文本音色列表与通用接口不同（精品/大模型档），`AI_AUDIO_VOICE_ID` 必须取自“长文本语音合成音色列表”；超自然大模型 2.0 仅支持通用同步接口。
 - 音频时长 `durationMs` 供应商不返回，暂为 null（前端播放器以音频真实 duration 为准）。
 - 契约测试：`TencentCloudAudioContractTest` 由 `AI_AUDIO_TENCENT_CONTRACT=true` 显式开启（默认跳过，避免 CI 扣费/依赖资源包）。

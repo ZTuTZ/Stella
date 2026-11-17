@@ -84,6 +84,8 @@ app:
       secret-id: ${AI_AUDIO_TENCENT_SECRET_ID:}
       secret-key: ${AI_AUDIO_TENCENT_SECRET_KEY:}
       region: ${AI_AUDIO_TENCENT_REGION:ap-guangzhou}
+      # tencent-sync（基础同步接口 + 分段拼接）的本地合成输出目录
+      sync-output-dir: ${AI_AUDIO_SYNC_OUTPUT_DIR:./data/tencent-sync}
       # Mock：submit → READY 的模拟时长与测试音频目录（真实 Provider 待供应商文档）
       mock-delay-ms: ${AI_AUDIO_MOCK_DELAY_MS:3000}
       mock-fixture-dir: ${AI_AUDIO_MOCK_FIXTURE_DIR:./data/mock-audio}
