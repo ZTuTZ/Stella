@@ -7,7 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * bootstrap-password 为空则跳过创建（并打 warn）；仅本地/内测使用，生产必须更换。
  */
 @ConfigurationProperties("app.admin")
-public record AppAdminProperties(String bootstrapUsername, String bootstrapPassword) {
+public record AppAdminProperties(String bootstrapUsername, String bootstrapPassword,
+                                  int loginMaxFailures, int loginWindowMinutes) {
 
     public AppAdminProperties {
         if (bootstrapUsername == null || bootstrapUsername.isBlank()) {
@@ -15,6 +16,12 @@ public record AppAdminProperties(String bootstrapUsername, String bootstrapPassw
         }
         if (bootstrapPassword == null) {
             bootstrapPassword = "";
+        }
+        if (loginMaxFailures <= 0) {
+            loginMaxFailures = 5;
+        }
+        if (loginWindowMinutes <= 0) {
+            loginWindowMinutes = 15;
         }
     }
 }

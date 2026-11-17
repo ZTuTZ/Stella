@@ -1,0 +1,20 @@
+# 生产 profile（H-10）：不得以 mock/local 配置误启动；由 ProductionConfigurationValidator 强制校验。
+spring:
+  jpa:
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.futureself: INFO

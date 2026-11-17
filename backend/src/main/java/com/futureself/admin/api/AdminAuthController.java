@@ -1,6 +1,8 @@
 package com.futureself.admin.api;
 
 import com.futureself.admin.application.AdminBootstrapRunner;
+import com.futureself.admin.application.AdminLoginThrottle;
+import jakarta.servlet.http.HttpServletRequest;
 import com.futureself.auth.application.TokenService;
 import com.futureself.common.api.ApiResponse;
 import com.futureself.common.error.BusinessException;
@@ -32,18 +34,27 @@ public class AdminAuthController {
     private final AdminBootstrapRunner bootstrap;
     private final UserService userService;
     private final TokenService tokenService;
+    private final AdminLoginThrottle loginThrottle;
 
-    public AdminAuthController(AdminBootstrapRunner bootstrap, UserService userService, TokenService tokenService) {
+    public AdminAuthController(AdminBootstrapRunner bootstrap, UserService userService, TokenService tokenService,
+                               AdminLoginThrottle loginThrottle) {
         this.bootstrap = bootstrap;
         this.userService = userService;
         this.tokenService = tokenService;
+        this.loginThrottle = loginThrottle;
     }
 
     @PostMapping("/auth/login")
-    public ApiResponse<Map<String, Object>> login(@Validated @RequestBody AdminLoginRequest request) {
+    public ApiResponse<Map<String, Object>> login(@Validated @RequestBody AdminLoginRequest request,
+                                                  HttpServletRequest httpRequest) {
+        // H-11：先用 remoteAddr + usernameHash 做失败限流（不信任 X-Forwarded-For）
+        String ip = httpRequest.getRemoteAddr();
+        loginThrottle.assertNotLocked(ip, request.username());
         if (!bootstrap.verify(request.username(), request.password())) {
+            loginThrottle.recordFailure(ip, request.username());
             throw new BusinessException(ErrorCode.AUTH_REQUIRED, "用户名或密码错误");
         }
+        loginThrottle.clear(ip, request.username());
         AdminUser admin = userService.findAdminByUsername(request.username()).orElseThrow();
         userService.touchAdminLogin(admin);
         TokenService.IssuedToken token = tokenService.issueAdmin(admin.getId());

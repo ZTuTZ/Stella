@@ -5,7 +5,7 @@
  * - 业务错误统一 Toast（silent 可关）
  * - 超时 15s；网络异常统一文案
  */
-import { API_BASE_URL, REQUEST_TIMEOUT } from "./config";
+import { API_BASE_URL, REQUEST_TIMEOUT, assertApiConfigured } from "./config";
 import { ApiError, ApiEnvelope } from "../types/api";
 import { clearSession, ensureLogin, getToken } from "../stores/session";
 
@@ -32,6 +32,13 @@ function fail(code: string, message: string, statusCode?: number): ApiError {
 }
 
 function raw<T>(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: string, data?: unknown): Promise<T> {
+  try {
+    assertApiConfigured();
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "API 未配置";
+    toast(message);
+    return Promise.reject(fail("API_NOT_CONFIGURED", message));
+  }
   const requestId = newRequestId();
   const token = getToken();
   return new Promise<T>((resolve, reject) => {

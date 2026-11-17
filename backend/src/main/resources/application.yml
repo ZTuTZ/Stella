@@ -58,6 +58,9 @@ app:
   admin:
     bootstrap-username: ${ADMIN_BOOTSTRAP_USERNAME:admin}
     bootstrap-password: ${ADMIN_BOOTSTRAP_PASSWORD:}
+    # H-11：管理端登录失败限流（IP + usernameHash，固定窗口）
+    login-max-failures: ${ADMIN_LOGIN_MAX_FAILURES:5}
+    login-window-minutes: ${ADMIN_LOGIN_WINDOW_MINUTES:15}
   rate-limit:
     goal-create-per-hour: ${RATE_LIMIT_GOAL_PER_HOUR:30}
     followup-per-hour: ${RATE_LIMIT_FOLLOWUP_PER_HOUR:20}
