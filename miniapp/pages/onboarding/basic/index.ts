@@ -2,6 +2,7 @@
  * Onboarding 步骤 A（§5.2）：昵称（1~30）→ 关注领域（1~5，白名单）。
  * 数据先落本地草稿；第二步「保存并继续」时提交 PATCH /me + PUT life-profile。
  */
+import { goBackOrHome } from "../../../utils/navigation";
 import { meApi, profileApi } from "../../../services/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
 import { OnboardingDraft } from "../../../stores/onboarding";
@@ -57,7 +58,7 @@ Page({
       this.setData({ step: 1, progressText: "1 / 6" });
       return;
     }
-    wx.navigateBack();
+    goBackOrHome();
   },
 
   onNext() {

@@ -2,6 +2,7 @@
  * Onboarding 步骤 B（§5.2）：当前生活（0~1000，可跳过）→ 重要人物（0~8，可跳过）。
  * 保存时全量 PUT life-profile（含 basic 已存的 focusAreas，保持草稿一致性）。
  */
+import { goBackOrHome } from "../../../utils/navigation";
 import { profileApi } from "../../../services/api";
 import { ImportantPerson } from "../../../types/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
@@ -25,7 +26,7 @@ Page({
       this.setData({ step: 1, progressText: "3 / 6" });
       return;
     }
-    wx.navigateBack();
+    goBackOrHome();
   },
 
   // —— 重要人物编辑 ——

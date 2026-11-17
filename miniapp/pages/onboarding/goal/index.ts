@@ -4,6 +4,7 @@
  * 最后一步 POST /goals 创建目标 → 跳 AI 追问页。
  * standalone=1（首页 manifest 提交）：隐藏 onboarding 进度；prefill 预填标题。
  */
+import { goBackOrHome } from "../../../utils/navigation";
 import { goalApi } from "../../../services/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
 
@@ -51,7 +52,7 @@ Page({
       this.setData({ step: this.data.step - 1, progressText: this.data.standalone ? "" : "5 / 6", error: "" });
       return;
     }
-    wx.navigateBack();
+    goBackOrHome();
   },
 
   onNext() {

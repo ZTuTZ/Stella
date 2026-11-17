@@ -3,10 +3,11 @@
  * 同一套柔和视觉系统。
  */
 import { clearSession } from "../../stores/session";
+import { goBackOrHome } from "../../utils/navigation";
 
 Page({
   goBack() {
-    wx.navigateBack();
+    goBackOrHome();
   },
 
   onLogout() {

@@ -3,6 +3,7 @@
  * 收藏在卡片上直接切换（乐观更新 + PUT favorite）。
  */
 import { storyApi } from "../../../services/api";
+import { goBackOrHome } from "../../../utils/navigation";
 import { StoryResponse } from "../../../types/api";
 
 const PAGE_SIZE = 10;
@@ -123,6 +124,6 @@ Page({
   },
 
   goBack() {
-    wx.navigateBack();
+    goBackOrHome();
   },
 })

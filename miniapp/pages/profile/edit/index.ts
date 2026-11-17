@@ -4,6 +4,7 @@
  * profile_version 由后端自增；只影响后续生成（§32.3）。
  */
 import { meApi, profileApi } from "../../../services/api";
+import { goBackOrHome } from "../../../utils/navigation";
 import { ImportantPerson, LifeProfileResponse, MeResponse } from "../../../types/api";
 
 const FOCUS_OPTIONS = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
@@ -110,7 +111,7 @@ Page({
   },
 
   goBack() {
-    wx.navigateBack();
+    goBackOrHome();
   },
 
   onSave() {

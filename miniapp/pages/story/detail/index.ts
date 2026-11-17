@@ -7,6 +7,7 @@
 import { API_BASE_URL } from "../../../services/config";
 import { storyApi } from "../../../services/api";
 import { StoryResponse } from "../../../types/api";
+import { goBackOrHome } from "../../../utils/navigation";
 import {
   formatTime,
   getPlayerState,
@@ -207,6 +208,7 @@ Page({
   },
 
   goBack() {
-    wx.navigateBack();
+    // 从生成流程 redirectTo 进入时栈内只有本页，返回首页；从首页/故事库进入则正常回退
+    goBackOrHome();
   },
 })

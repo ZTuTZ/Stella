@@ -2,6 +2,7 @@
  * Onboarding 步骤 D/E（§5.2）：AI 追问 0~3 题（可逐题跳过）→ 保存回答 → 创建生成任务 → 生成进度页。
  * Mock 文本 AI 固定返回 2 题；真实 Provider 下可能 0 题（直接生成）。
  */
+import { goBackOrHome } from "../../../utils/navigation";
 import { generationApi, goalApi } from "../../../services/api";
 import { FollowupQuestion } from "../../../types/api";
 import { clearDraft } from "../../../stores/onboarding";
@@ -64,7 +65,7 @@ Page({
       this.updateHint();
       return;
     }
-    wx.navigateBack();
+    goBackOrHome();
   },
 
   onNext() {
