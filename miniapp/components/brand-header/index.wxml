@@ -4,7 +4,7 @@
     <view class="icon-btn" hover-class="icon-pressed" catchtap="onHeart">
       <text class="icon">♡</text>
     </view>
-    <view class="icon-btn" hover-class="icon-pressed" catchtap="onHistory">
+    <view wx:if="{{showHistory}}" class="icon-btn" hover-class="icon-pressed" catchtap="onHistory">
       <text class="icon">◷</text>
     </view>
   </view>

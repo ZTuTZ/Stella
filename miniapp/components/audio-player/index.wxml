@@ -16,7 +16,7 @@
     </view>
   </view>
 
-  <!-- READY：进度条 + 播放控件 + 环境音 -->
+  <!-- READY：进度条 + 播放控件 -->
   <block wx:else>
     <view class="progress-row">
       <text class="time">{{currentTime}}</text>
@@ -35,17 +35,6 @@
       <text class="skip" hover-class="skip-pressed" catchtap="onForward">15↻</text>
     </view>
 
-    <scroll-view class="ambience" scroll-x enhanced show-scrollbar="{{false}}">
-      <view
-        wx:for="{{ambience}}"
-        wx:key="*this"
-        class="ambience-chip {{selectedAmbience === index ? 'is-selected' : ''}}"
-        hover-class="chip-pressed"
-        catchtap="onAmbience"
-        data-index="{{index}}"
-      >
-        <text class="ambience-text">{{item}}</text>
-      </view>
-    </scroll-view>
+    <!-- 环境音混音未实现（v1.0.1 P2），不展示不可用控件 -->
   </block>
 </view>

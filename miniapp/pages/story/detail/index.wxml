@@ -12,9 +12,6 @@
         <view class="icon-btn cover-icon" hover-class="icon-pressed" bindtap="onFavorite">
           <text class="icon {{story.favorite ? 'heart-active' : ''}}">{{story.favorite ? '♥' : '♡'}}</text>
         </view>
-        <view class="icon-btn cover-icon" hover-class="icon-pressed" bindtap="onMore">
-          <text class="icon">⋯</text>
-        </view>
       </view>
     </view>
 

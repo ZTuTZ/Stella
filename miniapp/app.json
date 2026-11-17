@@ -11,8 +11,7 @@
     "pages/story/detail/index",
     "pages/story/list/index",
     "pages/profile/edit/index",
-    "pages/settings/index",
-    "pages/dev/design-system/index"
+    "pages/settings/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#F8E9E8",
