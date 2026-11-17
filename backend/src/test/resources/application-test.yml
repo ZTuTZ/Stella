@@ -19,8 +19,9 @@ app:
   generation:
     worker-delay-ms: 60000
     retry-backoff-base-ms: 0
-  # Mock 音频立即 READY，fixture 放进测试目录
+  # Mock 音频立即 READY，fixture 放进测试目录；测试固定 mock，避免继承本地 .env 的 tencent
   ai:
     audio:
+      provider: mock
       mock-delay-ms: 0
       mock-fixture-dir: target/test-media/mock-audio

@@ -4,8 +4,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * AI 音频配置（app.ai.audio，实施文档 §15/§21）。
- * provider: mock（唯一实现，真实 Provider 待 docs/external/audio/ 文档）。
- * mock-delay-ms：Mock submit → READY 的模拟生成时长；mock-fixture-dir：测试音频目录。
+ * provider: mock（本地演示）| tencent（腾讯云长文本语音合成，真实 Provider）。
+ * 腾讯云凭据只从环境变量/.env 读取，禁止入库/入日志。
+ * mock-delay-ms / mock-fixture-dir：Mock submit → READY 的模拟时长与测试音频目录。
  */
 @ConfigurationProperties("app.ai.audio")
 public record AppAudioProperties(
@@ -14,7 +15,10 @@ public record AppAudioProperties(
         String apiKey,
         String voiceId,
         long mockDelayMs,
-        String mockFixtureDir) {
+        String mockFixtureDir,
+        String secretId,
+        String secretKey,
+        String region) {
 
     public AppAudioProperties {
         if (provider == null || provider.isBlank()) {
@@ -34,6 +38,15 @@ public record AppAudioProperties(
         }
         if (mockFixtureDir == null || mockFixtureDir.isBlank()) {
             mockFixtureDir = "./data/mock-audio";
+        }
+        if (secretId == null) {
+            secretId = "";
+        }
+        if (secretKey == null) {
+            secretKey = "";
+        }
+        if (region == null || region.isBlank()) {
+            region = "ap-guangzhou";
         }
     }
 }

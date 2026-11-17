@@ -1,11 +1,13 @@
 package com.futureself.ai.audio;
 
+import com.futureself.ai.audio.provider.TencentCloudAudioProvider;
 import com.futureself.config.AppAudioProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,7 +17,7 @@ import java.nio.file.Path;
 
 /**
  * 音频 Provider 装配（实施文档 §15）。
- * 当前仅有 mock；真实供应商文档到位后在此追加 @ConditionalOnProperty Bean。
+ * mock：本地演示；tencent：腾讯云长文本语音合成（真实 Provider）。
  * 未知 provider 值会导致无 Bean 可装配 → 启动失败（明确的配置错误，符合 §28 Phase 6 验收）。
  */
 @Configuration
@@ -26,6 +28,12 @@ public class AudioProviderConfig {
     public AiAudioProvider mockAiAudioProvider(AppAudioProperties props) {
         ensureMockFixture(props);
         return new MockAiAudioProvider(props);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.ai.audio.provider", havingValue = "tencent")
+    public AiAudioProvider tencentCloudAudioProvider(AppAudioProperties props, ObjectMapper objectMapper) {
+        return new TencentCloudAudioProvider(props, objectMapper);
     }
 
     /** 启动时确保 Mock fixture（2 秒静音 WAV）存在，供转存与播放联调。 */

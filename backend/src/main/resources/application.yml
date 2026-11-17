@@ -80,6 +80,10 @@ app:
       base-url: ${AI_AUDIO_BASE_URL:}
       api-key: ${AI_AUDIO_API_KEY:}
       voice-id: ${AI_AUDIO_VOICE_ID:}
+      # 腾讯云长文本语音合成（provider=tencent 时使用；secret 只来自环境变量）
+      secret-id: ${AI_AUDIO_TENCENT_SECRET_ID:}
+      secret-key: ${AI_AUDIO_TENCENT_SECRET_KEY:}
+      region: ${AI_AUDIO_TENCENT_REGION:ap-guangzhou}
       # Mock：submit → READY 的模拟时长与测试音频目录（真实 Provider 待供应商文档）
       mock-delay-ms: ${AI_AUDIO_MOCK_DELAY_MS:3000}
       mock-fixture-dir: ${AI_AUDIO_MOCK_FIXTURE_DIR:./data/mock-audio}
