@@ -29,6 +29,33 @@ Page({
     loading: false,
   },
 
+  onLoad() {
+    // 再次进入时回填已保存资料（草稿优先，不覆盖用户刚改的内容）
+    Promise.all([
+      meApi.me({ silent: true }),
+      profileApi.get(),
+    ]).then(([me, profile]) => {
+      const draft = this.data.draft;
+      const patch: Record<string, unknown> = {};
+      if (!draft.displayName && me.displayName) {
+        patch["draft.displayName"] = me.displayName;
+      }
+      if (draft.focusAreas.length === 0 && profile.focusAreas && profile.focusAreas.length > 0) {
+        patch["draft.focusAreas"] = profile.focusAreas;
+        patch.focusOptions = buildFocusOptions(profile.focusAreas);
+      }
+      if (!draft.currentSituation && profile.currentSituation) {
+        patch["draft.currentSituation"] = profile.currentSituation;
+      }
+      if (draft.importantPeople.length === 0 && profile.importantPeople && profile.importantPeople.length > 0) {
+        patch["draft.importantPeople"] = profile.importantPeople;
+      }
+      if (Object.keys(patch).length > 0) {
+        this.setData(patch);
+      }
+    }).catch(() => undefined);
+  },
+
   onNameInput(e: WechatMiniprogram.Input) {
     this.setData({ "draft.displayName": e.detail.value, nameError: "" });
   },

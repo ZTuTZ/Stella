@@ -3,7 +3,7 @@
  * Mock 文本 AI 固定返回 2 题；真实 Provider 下可能 0 题（直接生成）。
  */
 import { goBackOrHome } from "../../../utils/navigation";
-import { generationApi, goalApi } from "../../../services/api";
+import { generationApi, goalApi, meApi } from "../../../services/api";
 import { FollowupQuestion } from "../../../types/api";
 import { clearDraft } from "../../../stores/onboarding";
 
@@ -99,8 +99,11 @@ Page({
   startGeneration() {
     this.setData({ submitting: true });
     generationApi.generateStory(this.data.goalId).then((res) => {
-      clearDraft();
-      wx.redirectTo({ url: "/pages/generation/progress/index?taskId=" + res.taskId });
+      // 标记 onboarding 完成（失败不影响进入生成流程）
+      meApi.completeOnboarding({ silent: true }).catch(() => undefined).then(() => {
+        clearDraft();
+        wx.redirectTo({ url: "/pages/generation/progress/index?taskId=" + res.taskId });
+      });
     }).catch(() => {
       this.setData({ submitting: false });
     });

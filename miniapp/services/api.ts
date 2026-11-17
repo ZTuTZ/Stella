@@ -22,7 +22,7 @@ export const authApi = {
 export const meApi = {
   me: (options?: RequestOptions) => api.get<MeResponse>("/api/v1/me", options),
   updateDisplayName: (displayName: string) => api.patch<MeResponse>("/api/v1/me", { displayName }),
-  completeOnboarding: () => api.post<MeResponse>("/api/v1/me/onboarding/complete"),
+  completeOnboarding: (options?: RequestOptions) => api.post<MeResponse>("/api/v1/me/onboarding/complete", undefined, options),
 };
 
 export interface LifeProfileUpdate {
@@ -38,6 +38,7 @@ export const profileApi = {
 };
 
 export const goalApi = {
+  list: (options?: RequestOptions) => api.get<GoalResponse[]>("/api/v1/goals", options),
   create: (payload: { goalCategory: string; goalTitle: string; goalDescription: string; targetTimeText?: string }) =>
     api.post<GoalResponse>("/api/v1/goals", payload),
   followupQuestions: (goalId: number) =>

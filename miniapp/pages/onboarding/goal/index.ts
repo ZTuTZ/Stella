@@ -8,6 +8,13 @@ import { goBackOrHome } from "../../../utils/navigation";
 import { goalApi } from "../../../services/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
 
+interface GoalLike {
+  category: string;
+  title: string;
+  description: string;
+  targetTimeText: string | null;
+}
+
 const CATEGORIES = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
 
 Page({
@@ -31,6 +38,25 @@ Page({
       draft: loadDraft(),
       progressText: standalone ? "" : "5 / 6",
     });
+
+    // 再次进入时，用最近的 ACTIVE 目标回填（草稿已有内容则不覆盖）
+    const draft = this.data.draft;
+    const hasGoalContent = !!(draft.goalTitle || draft.goalDescription);
+    if (!hasGoalContent && !standalone) {
+      goalApi.list({ silent: true }).then((goals: GoalLike[]) => {
+        const latest = goals && goals.length > 0 ? goals[0] : null;
+        if (!latest) {
+          return;
+        }
+        const patched = saveDraft({
+          goalCategory: latest.category,
+          goalTitle: latest.title,
+          goalDescription: latest.description,
+          targetTimeText: latest.targetTimeText || "",
+        });
+        this.setData({ draft: patched });
+      }).catch(() => undefined);
+    }
   },
 
   onPickCategory(e: WechatMiniprogram.CustomEvent<{ label: string }>) {
