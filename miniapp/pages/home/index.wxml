@@ -42,6 +42,7 @@
     <text class="section-title t-page-title">Today's affirmation</text>
     <text class="section-link t-tertiary" bindtap="onNextAffirmation">换一条</text>
   </view>
+  <text class="affirmation-ai t-tertiary">AI 生成内容 · 想象练习，不承诺结果</text>
   <affirmation-card
     text="{{affirmationText}}"
     favorite="{{affirmationFavorite}}"

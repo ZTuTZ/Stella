@@ -46,6 +46,13 @@
 .empty-text { text-align: center; }
 
 .affirmation-area { margin-top: 64rpx; }
+
+.affirmation-ai {
+  display: block;
+  margin-bottom: 16rpx;
+  font-size: 20rpx;
+}
+
 .swipe-hint {
   display: block;
   text-align: center;

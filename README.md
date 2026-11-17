@@ -66,13 +66,14 @@ cd admin-web && npm run build
 - [x] Phase 5 — AI Audio Framework（AiAudioProvider+Mock、audio_asset、音频阶段状态机、Storage 转存、retry-audio、supersede）
 - [ ] Phase 6 — 真实音频 API（条件阶段，等 docs/external/audio/）
 - [x] Phase 8 — 管理后台 + 稳定性（admin 登录/用户/内容/任务重试/Prompt 切换/AI 日志/Dashboard + 四类限流 + 注销预留 + 音频清理任务）
+- [x] 小程序 UI Phase 0~4（设计系统/Onboarding/Home/沉浸播放器/Library+Profile+设置，custom-tab-bar）
 - [x] Phase 7 — Affirmation + Home + Story Library（当日幂等肯定句、首页聚合、列表分页/收藏/软删除、user_event 埋点）
 - [ ] Phase 4 — Story Generation
 - [ ] Phase 5 — AI Audio Framework
 - [ ] Phase 6 — 真实音频 API（条件阶段）
 - [ ] Phase 7 — Affirmation + Home + Story Library
 - [ ] Phase 8 — 管理后台 + 稳定性
-- [ ] Phase 9 — 发布前清单
+- [x] Phase 9 — 发布前清单（12 项逐项验证 + §39 场景核对，见 docs/PHASE9_CHECKLIST.md）
 
 ## 常见问题
 
