@@ -24,7 +24,7 @@
 | 方法 | 路径 | 说明 | 状态 |
 |---|---|---|---|
 | POST | `/api/v1/auth/wechat/login` | code 登录，返回 accessToken + user | ✅ Phase 2（mock/真实二合一） |
-| POST | `/api/v1/admin/auth/login` | 管理后台登录 | 计划 Phase 8 |
+| POST | `/api/v1/admin/auth/login` | 管理后台登录（BCrypt + admin token） | ✅ Phase 8 |
 
 ### Me / Profile
 | 方法 | 路径 | 说明 | 状态 |
@@ -61,8 +61,21 @@
 | GET | `/api/v1/affirmations/today` | 当日幂等生成（UNIQUE(user,date) 兜底并发；输出过审核） | ✅ Phase 7 |
 | GET | `/api/v1/home` | 首页聚合：昵称+今日/最近故事+肯定句+运行中任务 | ✅ Phase 7 |
 
-### Admin（`/api/v1/admin/*`）
-`users` `users/{id}` `goals` `stories` `tasks` `tasks/{id}/retry` `prompts` `prompts/{id}` `ai-logs` `dashboard/summary` — 计划 Phase 8。
+### Admin（`/api/v1/admin/*`，全部需 admin token；USER token → 403 AUTH_FORBIDDEN）
+| 方法 | 路径 | 说明 | 状态 |
+|---|---|---|---|
+| POST | `/admin/auth/login` | 管理后台登录 | ✅ Phase 8 |
+| GET | `/admin/users?keyword&page&size` | 用户分页（openid 脱敏） | ✅ Phase 8 |
+| GET | `/admin/users/{id}` | 详情：基础+档案+目标+故事+最近任务 | ✅ Phase 8 |
+| PUT | `/admin/users/{id}/status` | 封禁/解封（token 立即失效） | ✅ Phase 8 |
+| GET | `/admin/goals /stories /tasks`（userId/status/page/size） | 内容与任务分页 | ✅ Phase 8 |
+| POST | `/admin/tasks/{id}/retry` | 手动重试（文本失败→重生成；有故事→只重试音频；BLOCKED 不可重试） | ✅ Phase 8 |
+| GET/POST | `/admin/prompts`、`/admin/prompts/{id}` | 版本列表/详情/新建（默认禁用） | ✅ Phase 8 |
+| PUT | `/admin/prompts/{id}/enable /disable` | 切换版本（同 key 仅一个 enabled） | ✅ Phase 8 |
+| GET | `/admin/ai-logs`（requestId/operation/providerType） | AI 调用日志 | ✅ Phase 8 |
+| GET | `/admin/dashboard/summary` | §20.1 全部指标 | ✅ Phase 8 |
+
+> 新增错误码 `AUTH_FORBIDDEN(403)`（§22 基础上的补充）。
 
 ## 限流（§24）
 

@@ -67,6 +67,18 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 READY 返回项目内 fixture（`AI_AUDIO_MOCK_FIXTURE_DIR`，启动时自动生成 2 秒静音 WAV），由后端转存到自有存储后经 `/media/**` 播放。
 **真实音频 Provider 未实现**：`docs/external/audio/` 出现供应商文档前，任何非 mock 的 provider 值会因无 Bean 而启动失败（明确的配置错误）。
 
+## 管理后台
+
+- 凭据：`.env` 的 `ADMIN_BOOTSTRAP_USERNAME/PASSWORD`；首次启动 bootstrap 自动建 admin（BCrypt）。本地默认密码见 `.env`，**请自行修改**。
+- 启动：`cd admin-web && npm run dev` → http://localhost:5173（/api 代理到 8080）。
+- 能力：用户检索/封禁、目标/故事/任务列表、失败任务手动重试（音频失败只重试音频）、Prompt 版本切换、AI 日志按 requestId 排查、Dashboard 指标。
+
+## 限流与清理
+
+- 限流（§24，环境变量可调）：Goal 30/时、追问 20/时、生成 10/日、重试音频 5/日/故事；Redis 不可用时降级放行。
+- 音频清理（§25.2）：每日 03:05 物理删除超期（默认 30 天）已删除故事的音频文件。
+- 注销（§25.3）：`UserDeletionService.requestDeletion(userId)` 已预留（禁用账号+软删数据），UI 暂不开放。
+
 ## Mock 微信登录
 
 `WECHAT_MOCK_LOGIN=true`（默认 `.env` 已开）时，`POST /api/v1/auth/wechat/login` 不访问微信：
