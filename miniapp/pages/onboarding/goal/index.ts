@@ -7,6 +7,7 @@
 import { goBackOrHome } from "../../../utils/navigation";
 import { goalApi } from "../../../services/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 interface GoalLike {
   category: string;
@@ -19,6 +20,7 @@ const CATEGORIES = ["事业", "财富", "爱情", "家庭", "自信", "健康生
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     step: 1,
     progressText: "5 / 6",
     standalone: false,

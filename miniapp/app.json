@@ -18,7 +18,8 @@
     "navigationBarBackgroundColor": "#F8E9E8",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "Future Self",
-    "backgroundColor": "#F8E9E8"
+    "backgroundColor": "#F8E9E8",
+    "navigationStyle": "custom"
   },
   "tabBar": {
     "custom": true,
@@ -26,8 +27,14 @@
     "selectedColor": "#1E1A1C",
     "backgroundColor": "#FDF4F0",
     "list": [
-      { "pagePath": "pages/home/index", "text": "首页" },
-      { "pagePath": "pages/profile/index", "text": "我的" }
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
     ]
   },
   "style": "v2",

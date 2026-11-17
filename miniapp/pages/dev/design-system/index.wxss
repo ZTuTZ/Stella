@@ -1,6 +1,6 @@
 /* design-system 展示页（仅开发环境） */
 .page {
-  padding: 48rpx 32rpx 96rpx;
+  padding: calc(var(--sb) + 48rpx) 32rpx 96rpx;
 }
 
 .dev-banner {

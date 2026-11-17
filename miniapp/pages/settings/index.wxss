@@ -1,7 +1,7 @@
 /* settings — 设置页（§42.5）：与整体相同的柔和视觉系统 */
 .settings {
   min-height: 100vh;
-  padding: 48rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  padding: calc(var(--sb) + 48rpx) 32rpx calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 

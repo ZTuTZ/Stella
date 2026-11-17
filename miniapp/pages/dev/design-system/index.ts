@@ -1,3 +1,4 @@
+import { getStatusBarHeight } from "../../../utils/safeArea";
 /**
  * UI Phase 0 — 设计系统展示页（§42.1）。
  * 仅开发预览可见：envVersion === 'release' 时渲染空态，不入正式导航。
@@ -5,6 +6,7 @@
  */
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     devOnly: true,
     manifestValue: "",
   },

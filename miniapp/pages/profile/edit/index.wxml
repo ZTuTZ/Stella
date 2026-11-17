@@ -1,4 +1,4 @@
-<view class="edit">
+<view class="edit" style="--sb:{{statusBarHeight}}px">
   <view class="top">
     <text class="back" bindtap="goBack">←</text>
     <text class="top-title t-secondary">人生档案</text>

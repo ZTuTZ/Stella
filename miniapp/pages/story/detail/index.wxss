@@ -38,7 +38,7 @@
 
 .top-bar {
   position: absolute;
-  top: calc(24rpx + env(safe-area-inset-top));
+  top: calc(24rpx + var(--sb));
   left: 32rpx;
   right: 32rpx;
   display: flex;

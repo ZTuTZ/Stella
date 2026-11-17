@@ -6,9 +6,11 @@ import { goBackOrHome } from "../../../utils/navigation";
 import { profileApi } from "../../../services/api";
 import { ImportantPerson } from "../../../types/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     step: 1,
     progressText: "3 / 6",
     draft: loadDraft(),

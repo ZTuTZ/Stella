@@ -6,9 +6,11 @@ import { goBackOrHome } from "../../../utils/navigation";
 import { generationApi, goalApi, meApi } from "../../../services/api";
 import { FollowupQuestion } from "../../../types/api";
 import { clearDraft } from "../../../stores/onboarding";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     goalId: 0,
     loading: true,
     questions: [] as FollowupQuestion[],

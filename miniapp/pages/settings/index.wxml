@@ -1,4 +1,4 @@
-<view class="settings">
+<view class="settings" style="--sb:{{statusBarHeight}}px">
   <view class="top">
     <text class="back" bindtap="goBack">←</text>
     <text class="top-title t-secondary">设置</text>

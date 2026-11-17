@@ -1,7 +1,7 @@
 /* profile/edit — 人生档案编辑：简洁表单（Profile 页不做沉浸，§41.6.9） */
 .edit {
   min-height: 100vh;
-  padding: 48rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  padding: calc(var(--sb) + 48rpx) 32rpx calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 

@@ -1,4 +1,4 @@
-<view wx:if="{{devOnly}}" class="page">
+<view wx:if="{{devOnly}}" class="page" style="--sb:{{statusBarHeight}}px">
   <text class="dev-banner">DEV · 设计系统一览（仅开发预览可见）</text>
 
   <!-- Dream Orb -->

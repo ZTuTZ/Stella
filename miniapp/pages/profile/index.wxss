@@ -1,7 +1,7 @@
 /* profile — 我的（§41.6.9）：简洁，保持 bg-soft 不切纯白 */
 .profile {
   min-height: 100vh;
-  padding: 96rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  padding: calc(var(--sb) + 96rpx) 32rpx calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 

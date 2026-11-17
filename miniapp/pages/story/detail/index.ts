@@ -4,6 +4,7 @@
  * 音频未 READY 时保持完整高级阅读态（§42.4），并低频轮询音频状态；
  * FAILED 可单独重试音频（§20.4）；文本随时可读（§32.6）。
  */
+import { getStatusBarHeight } from "../../../utils/safeArea";
 import { API_BASE_URL } from "../../../services/config";
 import { storyApi } from "../../../services/api";
 import { StoryResponse } from "../../../types/api";
@@ -24,6 +25,7 @@ let unsubscribe: (() => void) | null = null;
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     storyId: 0,
     story: null as StoryResponse | null,
     paragraphs: [] as string[],

@@ -4,6 +4,15 @@
  */
 App({
   onLaunch() {
-    // TODO Phase 2: wx.login -> /api/v1/auth/wechat/login -> onboarding 分流
+    // 自定义导航：记录状态栏高度，供各页面顶部安全区使用
+    try {
+      const info = wx.getWindowInfo();
+      this.globalData.statusBarHeight = info.statusBarHeight || 20;
+    } catch (e) {
+      this.globalData.statusBarHeight = 20;
+    }
+  },
+  globalData: {
+    statusBarHeight: 20,
   },
 })

@@ -1,7 +1,7 @@
 /* story/list — 我的故事 / Library（§41.6.7）：衬线大标题 + 轻筛选 + 两列网格 */
 .library {
   min-height: 100vh;
-  padding: 48rpx 32rpx 96rpx;
+  padding: calc(var(--sb) + 48rpx) 32rpx 96rpx;
   box-sizing: border-box;
 }
 

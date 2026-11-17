@@ -1,4 +1,4 @@
-<view class="launch">
+<view class="launch" style="--sb:{{statusBarHeight}}px">
   <dream-orb size="{{200}}" breathing="{{true}}" />
   <text class="hero t-hero">遇见未来的自己</text>
   <text class="sub t-secondary">把你想要的人生说给我听。\n我会把它写成一个已经发生的故事。</text>

@@ -5,9 +5,11 @@
  */
 import { meApi } from "../../services/api";
 import { clearSession, ensureLogin, getUser } from "../../stores/session";
+import { getStatusBarHeight } from "../../utils/safeArea";
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     loading: false,
     hasSession: false,
   },

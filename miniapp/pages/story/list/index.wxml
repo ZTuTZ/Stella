@@ -1,4 +1,4 @@
-<view class="library">
+<view class="library" style="--sb:{{statusBarHeight}}px">
   <view class="top">
     <text class="back" bindtap="goBack">←</text>
   </view>

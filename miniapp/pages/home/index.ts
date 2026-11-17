@@ -14,11 +14,13 @@ import {
   togglePlay,
 } from "../../stores/player";
 import { PlayerState } from "../../stores/player";
+import { getStatusBarHeight } from "../../utils/safeArea";
 
 const TRENDING = ["事业更自由", "理想爱情", "旅行", "更自信", "学会放松"];
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     greeting: "你想实现什么？",
     manifestValue: "",
     trending: TRENDING,
@@ -68,7 +70,7 @@ Page({
   syncMiniPlayer() {
     const s: PlayerState = getPlayerState();
     this.setData({
-      miniPlayerVisible: s.loaded,
+      miniPlayerVisible: s.loaded && (s.playing || s.currentTimeSec > 0),
       miniPlayerTitle: s.title,
       miniPlayerPlaying: s.playing,
       miniPlayerProgressPct: playerProgressPct(),
@@ -179,7 +181,8 @@ Page({
   },
 
   onLibrary() {
-    wx.navigateTo({ url: "/pages/story/list/index" });
+    // 首页爱心 = 我的收藏，直接带筛选进入
+    wx.navigateTo({ url: "/pages/story/list/index?favorite=1" });
   },
 
   onHistory() {

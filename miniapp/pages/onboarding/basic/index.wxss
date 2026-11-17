@@ -1,7 +1,7 @@
 /* onboarding — 单问题式（§41.6.2）：一屏一个核心问题，进度用数字不用粗条 */
 .ob {
   min-height: 100vh;
-  padding: 48rpx 32rpx 0;
+  padding: calc(var(--sb) + 48rpx) 32rpx 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

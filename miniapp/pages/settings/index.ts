@@ -4,8 +4,13 @@
  */
 import { clearSession } from "../../stores/session";
 import { goBackOrHome } from "../../utils/navigation";
+import { getStatusBarHeight } from "../../utils/safeArea";
 
 Page({
+  data: {
+    statusBarHeight: getStatusBarHeight(),
+  },
+
   goBack() {
     goBackOrHome();
   },

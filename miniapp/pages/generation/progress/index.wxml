@@ -1,4 +1,4 @@
-<view class="progress-page">
+<view class="progress-page" style="--sb:{{statusBarHeight}}px">
   <!-- 生成中 / 轮询状态 -->
   <view wx:if="{{state === 'running'}}" class="center anim-fade-in">
     <dream-orb size="{{180}}" breathing="{{true}}" />

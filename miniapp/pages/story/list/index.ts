@@ -5,6 +5,7 @@
 import { storyApi } from "../../../services/api";
 import { goBackOrHome } from "../../../utils/navigation";
 import { StoryResponse } from "../../../types/api";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 const PAGE_SIZE = 10;
 
@@ -17,6 +18,7 @@ interface LibraryItem {
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     favoriteOnly: false,
     items: [] as LibraryItem[],
     loading: true,

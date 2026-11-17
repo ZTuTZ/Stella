@@ -6,6 +6,7 @@
 import { meApi, profileApi } from "../../../services/api";
 import { goBackOrHome } from "../../../utils/navigation";
 import { ImportantPerson, LifeProfileResponse, MeResponse } from "../../../types/api";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 const FOCUS_OPTIONS = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
 
@@ -20,6 +21,7 @@ function buildFocusOptions(selectedAreas: string[]): FocusOption[] {
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     displayName: "",
     focusOptions: [] as FocusOption[],
     focusAreas: [] as string[],

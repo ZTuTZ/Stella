@@ -1,5 +1,5 @@
 <view wx:if="{{visible}}" class="mini-player">
-  <view class="progress-line" style="width:{{progressPct}}%"></view>
+  <view wx:if="{{progressPct > 0}}" class="progress-line" style="width:{{progressPct}}%"></view>
   <view class="inner">
     <view class="mini-orb" catchtap="onOpen"></view>
     <view class="meta" catchtap="onOpen">

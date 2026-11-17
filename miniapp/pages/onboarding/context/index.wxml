@@ -1,4 +1,4 @@
-<view class="ob">
+<view class="ob" style="--sb:{{statusBarHeight}}px">
   <view class="top">
     <text class="back" bindtap="goBack">←</text>
     <text class="progress t-tertiary">{{progressText}}</text>

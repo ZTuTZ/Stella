@@ -6,6 +6,7 @@ import { goBackOrHome } from "../../../utils/navigation";
 import { meApi, profileApi } from "../../../services/api";
 import { loadDraft, saveDraft } from "../../../stores/onboarding";
 import { OnboardingDraft } from "../../../stores/onboarding";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 const FOCUS_OPTIONS = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
 
@@ -20,6 +21,7 @@ function buildFocusOptions(selectedAreas: string[]): FocusOption[] {
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     step: 1,
     progressText: "1 / 6",
     focusOptions: buildFocusOptions(loadDraft().focusAreas),

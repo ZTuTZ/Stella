@@ -5,6 +5,7 @@
  * 不显示虚假百分比，只展示真实阶段文案。
  */
 import { generationApi } from "../../../services/api";
+import { getStatusBarHeight } from "../../../utils/safeArea";
 
 const STAGE_TEXTS: Record<string, string> = {
   PENDING: "正在理解愿望",
@@ -22,6 +23,7 @@ let stopped = false;
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     taskId: 0,
     state: "running", // running | failed | blocked
     stageText: "正在理解愿望",

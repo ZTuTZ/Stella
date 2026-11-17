@@ -1,7 +1,7 @@
 /* home — 首页（§41.6.3）：视觉重点 问候/问题 → 输入框 → 个性化故事；首屏无功能宫格 */
 .page {
   min-height: 100vh;
-  padding: 24rpx 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  padding: calc(var(--sb) + 24rpx) 32rpx calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -63,4 +63,9 @@
   display: block;
   text-align: center;
   margin-top: 48rpx;
+}
+
+/* 迷你播放器显示时，为页面底部预留空间，避免遮挡内容 */
+.page.has-mini {
+  padding-bottom: calc(280rpx + env(safe-area-inset-bottom));
 }

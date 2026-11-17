@@ -1,9 +1,11 @@
 /** 我的（§41.6.9 / UI Phase 4）：昵称 + Orb + 3 个大块浅色入口。 */
 import { meApi } from "../../services/api";
 import { MeResponse } from "../../types/api";
+import { getStatusBarHeight } from "../../utils/safeArea";
 
 Page({
   data: {
+    statusBarHeight: getStatusBarHeight(),
     displayName: "",
   },
 
