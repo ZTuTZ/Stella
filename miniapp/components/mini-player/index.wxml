@@ -1,12 +1,12 @@
 <view wx:if="{{visible}}" class="mini-player">
   <view class="progress-line" style="width:{{progressPct}}%"></view>
   <view class="inner">
-    <view class="mini-orb" bindtap="onOpen"></view>
-    <view class="meta" bindtap="onOpen">
+    <view class="mini-orb" catchtap="onOpen"></view>
+    <view class="meta" catchtap="onOpen">
       <text class="mini-title">{{title}}</text>
       <text class="mini-time">{{currentTime}} / {{duration}}</text>
     </view>
-    <view class="mini-play" hover-class="mini-pressed" bindtap="onPlay">
+    <view class="mini-play" hover-class="mini-pressed" catchtap="onPlay">
       <text class="mini-play-icon">{{playing ? '❚❚' : '▶'}}</text>
     </view>
   </view>

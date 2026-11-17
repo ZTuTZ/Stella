@@ -1,10 +1,10 @@
 <view class="brand-header">
   <text class="logo">Future Self</text>
   <view class="actions">
-    <view class="icon-btn" hover-class="icon-pressed" bindtap="onHeart">
+    <view class="icon-btn" hover-class="icon-pressed" catchtap="onHeart">
       <text class="icon">♡</text>
     </view>
-    <view class="icon-btn" hover-class="icon-pressed" bindtap="onHistory">
+    <view class="icon-btn" hover-class="icon-pressed" catchtap="onHistory">
       <text class="icon">◷</text>
     </view>
   </view>

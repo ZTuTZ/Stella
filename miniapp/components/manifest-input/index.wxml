@@ -13,7 +13,7 @@
   <view
     class="submit {{innerValue ? '' : 'is-empty'}}"
     hover-class="{{innerValue ? 'submit-pressed' : ''}}"
-    bindtap="onSubmit"
+    catchtap="onSubmit"
   >
     <text class="submit-icon">✦</text>
   </view>

@@ -6,7 +6,7 @@
 |---|---|---|---|
 | `dream-orb` | 统一视觉母题（120~220rpx） | `size` `breathing` | — |
 | `primary-button` | 主按钮（深炭黑胶囊） | `text` `disabled` `loading` | `tap` |
-| `pill-chip` | 胶囊选项/trending | `label` `selected` `small` | `tap` |
+| `pill-chip` | 胶囊选项/trending | `label` `selected` `small` | `select`（内部 catchtap，避免与原生 tap 双触发） |
 | `manifest-input` | 愿望胶囊输入 + ✦ 发送钮 | `value` `placeholder` | `change` `submit` |
 | `story-card` | 故事卡（渐变 + Orb） | `title` `tone` `showPlay` `showFavorite` `favorite` `playing` | `tap` `play` `favorite` |
 | `affirmation-card` | 叠卡肯定语 | `text` `footerLabel` `showActions` `favorite` | `tap` `favorite` `more` |

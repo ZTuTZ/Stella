@@ -18,7 +18,7 @@
         wx:key="*this"
         small="{{true}}"
         label="{{item}}"
-        bind:tap="onTrendingTap"
+        bind:select="onTrendingTap"
         data-label="{{item}}"
       />
     </view>

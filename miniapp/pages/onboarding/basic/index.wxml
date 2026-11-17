@@ -30,7 +30,7 @@
         wx:key="label"
         label="{{item.label}}"
         selected="{{item.selected}}"
-        bind:tap="onToggleFocus"
+        bind:select="onToggleFocus"
         data-area="{{item.label}}"
       />
     </view>

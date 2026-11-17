@@ -14,7 +14,7 @@
         wx:key="*this"
         label="{{item}}"
         selected="{{draft.goalCategory === item}}"
-        bind:tap="onPickCategory"
+        bind:select="onPickCategory"
         data-area="{{item}}"
       />
     </view>

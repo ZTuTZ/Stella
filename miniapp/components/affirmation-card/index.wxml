@@ -3,7 +3,7 @@
   <view class="layer layer-2"></view>
   <view class="layer layer-1"></view>
 
-  <view class="card" hover-class="card-pressed" bindtap="onTap">
+  <view class="card" hover-class="card-pressed" catchtap="onTap">
     <view wx:if="{{showActions}}" class="action action-left" catchtap="onFavorite">
       <text class="heart {{favorite ? 'is-favorite' : ''}}">{{favorite ? '♥' : '♡'}}</text>
     </view>

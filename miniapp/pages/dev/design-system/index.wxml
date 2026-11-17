@@ -27,15 +27,15 @@
   <view class="section">
     <text class="section-title">Pill Chip</text>
     <view class="row wrap">
-      <pill-chip label="事业" bind:tap="noop" />
-      <pill-chip label="财富" selected="{{true}}" bind:tap="noop" />
-      <pill-chip label="健康生活方式" bind:tap="noop" />
-      <pill-chip label="其他" selected="{{true}}" bind:tap="noop" />
+      <pill-chip label="事业" bind:select="noop" />
+      <pill-chip label="财富" selected="{{true}}" bind:select="noop" />
+      <pill-chip label="健康生活方式" bind:select="noop" />
+      <pill-chip label="其他" selected="{{true}}" bind:select="noop" />
     </view>
     <view class="row wrap">
-      <pill-chip small="{{true}}" label="事业更自由" bind:tap="noop" />
-      <pill-chip small="{{true}}" label="理想爱情" bind:tap="noop" />
-      <pill-chip small="{{true}}" label="旅行" bind:tap="noop" />
+      <pill-chip small="{{true}}" label="事业更自由" bind:select="noop" />
+      <pill-chip small="{{true}}" label="理想爱情" bind:select="noop" />
+      <pill-chip small="{{true}}" label="旅行" bind:select="noop" />
     </view>
     <text class="state-note">default / selected / small（trending）</text>
   </view>

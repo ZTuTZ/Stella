@@ -1,4 +1,4 @@
-<view class="card {{tone === 'lilac' ? 'tone-lilac' : 'tone-pink'}}" hover-class="card-pressed" bindtap="onTap">
+<view class="card {{tone === 'lilac' ? 'tone-lilac' : 'tone-pink'}}" hover-class="card-pressed" catchtap="onTap">
   <!-- Gradient Card（§41.5.4 B）：无图兜底，中心柔和 Orb -->
   <view class="orb"></view>
 
