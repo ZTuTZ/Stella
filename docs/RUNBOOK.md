@@ -34,12 +34,16 @@ cp .env.example .env   # 然后填入本地 DB_PASSWORD 等非提交值
 
 ```bash
 # 1. MySQL / Redis（本机服务）
-# 2. backend（端口 8080）
-cd backend && ../apache-maven 3.9.16/bin/mvn spring-boot:run   # 或本机 mvn
+# 2. backend（端口 8080）——local profile 会自动加载项目根目录 .env，无需手动 source
+/Users/aadmin/tool/apache-maven-3.9.16/bin/mvn -s scripts/maven-settings.xml -f backend/pom.xml spring-boot:run
+#    或： ./scripts/dev-backend.sh
 # 3. admin-web（需要时）
 cd admin-web && npm install && npm run dev
 # 4. 微信开发者工具打开 miniapp/
 ```
+
+> 若启动报 `Access denied ... using password: NO`：说明 `.env` 未生效（不在项目根/被改坏）。
+> 兜底：`set -a; source .env; set +a` 后再启动，或使用 `scripts/dev-backend.sh`。
 
 健康检查：`GET http://localhost:8080/actuator/health`（Phase 0 起可用；DB/Redis 状态随 Phase 1 接入）。
 
