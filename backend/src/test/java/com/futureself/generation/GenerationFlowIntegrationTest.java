@@ -262,4 +262,21 @@ class GenerationFlowIntegrationTest {
         mockMvc.perform(get("/api/v1/generation-tasks/" + taskId1).header("Authorization", "Bearer " + tokenB))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void idempotentReplayDoesNotConsumeQuota() throws Exception {
+        when(textAiProvider.providerName()).thenReturn("mock");
+        when(textAiProvider.generateStructured(any(), eq(StoryGenerationResult.class)))
+                .thenReturn(new StoryGenerationResult("重放故事", "摘要", "正文……", null));
+
+        String token = login("gen-idem-quota");
+        long goalId = createGoal(token);
+        String key = "replay-" + UUID.randomUUID();
+        long taskId = startTask(token, goalId, key);
+
+        // 日配额 10：同一 key 重放 12 次仍返回同一任务，说明重放不消耗额度
+        for (int i = 0; i < 12; i++) {
+            assertThat(startTask(token, goalId, key)).isEqualTo(taskId);
+        }
+    }
 }

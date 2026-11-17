@@ -74,10 +74,7 @@ public class GenerationTaskService {
     }
 
     public CreatedTask create(long userId, long goalId, String idempotencyKey) {
-        // 限流：生成故事 10 次/日/用户（§24）
-        if (!rateLimitService.allowDaily(userId, "story-generate", rateLimitProps.storyGeneratePerDay())) {
-            throw new BusinessException(ErrorCode.RATE_LIMITED);
-        }
+        // 幂等优先（H-02 §3.4）：已存在的同一请求直接返回，不重复消耗日配额
         String redisKey = idempotencyKey == null || idempotencyKey.isBlank()
                 ? null : IDEMPOTENCY_PREFIX + userId + ":" + idempotencyKey.trim();
         if (redisKey != null) {
@@ -90,6 +87,11 @@ public class GenerationTaskService {
         }
 
         ManifestationGoal goal = goalService.loadOwnGoal(goalId, userId);
+
+        // 只有真正要创建新任务时才消耗限流：生成故事 10 次/日/用户（§24）
+        if (!rateLimitService.allowDaily(userId, "story-generate", rateLimitProps.storyGeneratePerDay())) {
+            throw new BusinessException(ErrorCode.RATE_LIMITED);
+        }
         if (taskRepository.existsByGoalIdAndStatusNotIn(goalId, TERMINAL_STATUSES)) {
             throw new BusinessException(ErrorCode.TASK_ALREADY_RUNNING);
         }
