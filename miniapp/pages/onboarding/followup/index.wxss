@@ -1,5 +1,5 @@
 /* onboarding/followup — 对话式追问（§41.6.2）：Orb 强化对话感 */
-.ob { min-height: 100vh; padding: calc(var(--sb) + 48rpx) 32rpx 0; box-sizing: border-box; display: flex; flex-direction: column; }
+.ob { min-height: 100vh; padding: calc(var(--sb) + 88rpx) 32rpx 0; box-sizing: border-box; display: flex; flex-direction: column; }
 .top { display: flex; align-items: center; justify-content: space-between; }
 .back { font-size: 40rpx; color: var(--color-text); padding: 8rpx 16rpx 8rpx 0; }
 .q { margin-top: 64rpx; }

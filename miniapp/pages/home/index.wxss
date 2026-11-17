@@ -1,7 +1,7 @@
 /* home — 首页（§41.6.3）：视觉重点 问候/问题 → 输入框 → 个性化故事；首屏无功能宫格 */
 .page {
   min-height: 100vh;
-  padding: calc(var(--sb) + 24rpx) 32rpx calc(48rpx + env(safe-area-inset-bottom));
+  padding: calc(var(--sb) + 88rpx) 32rpx calc(48rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
