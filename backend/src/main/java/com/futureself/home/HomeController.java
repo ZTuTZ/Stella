@@ -3,6 +3,7 @@ package com.futureself.home;
 import com.futureself.affirmation.AffirmationService;
 import com.futureself.auth.CurrentUser;
 import com.futureself.common.api.ApiResponse;
+import com.futureself.common.time.BusinessTime;
 import com.futureself.generation.domain.GenerationTask;
 import com.futureself.generation.domain.GenerationTaskRepository;
 import com.futureself.home.api.HomeResponse;
@@ -11,12 +12,13 @@ import com.futureself.story.domain.Story;
 import com.futureself.story.domain.StoryRepository;
 import com.futureself.user.UserService;
 import com.futureself.user.domain.AppUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1")
 public class HomeController {
+
+    private static final Logger log = LoggerFactory.getLogger(HomeController.class);
 
     private final UserService userService;
     private final StoryService storyService;
@@ -51,10 +55,11 @@ public class HomeController {
         AppUser user = userService.findById(currentUser.userId())
                 .orElseThrow(() -> new IllegalStateException("authenticated user missing"));
 
+        var today = BusinessTime.today();
         Optional<Story> todayStory = storyRepository
                 .findTopByUserIdAndStatusAndModerationStatusAndCreatedAtBetweenOrderByCreatedAtDesc(
                         user.getId(), Story.STATUS_ACTIVE, Story.MODERATION_PASSED,
-                        LocalDate.now().atStartOfDay(), LocalDate.now().plusDays(1).atStartOfDay());
+                        today.atStartOfDay(), today.plusDays(1).atStartOfDay());
         if (todayStory.isEmpty()) {
             todayStory = storyRepository.findTopByUserIdAndStatusAndModerationStatusOrderByCreatedAtDesc(
                     user.getId(), Story.STATUS_ACTIVE, Story.MODERATION_PASSED);
@@ -62,13 +67,16 @@ public class HomeController {
         List<Story> recent = storyRepository.findTop3ByUserIdAndStatusAndModerationStatusOrderByCreatedAtDesc(
                 user.getId(), Story.STATUS_ACTIVE, Story.MODERATION_PASSED);
 
-        // 肯定句生成失败不拖垮首页（可用 /affirmations/today 单独重试）
+        // 肯定句生成失败不拖垮首页（可用 /affirmations/today 单独重试）：
+        // 失败时返回空的 AffirmationBrief（date=业务时区今天，items=[]），绝不返回 null。
         HomeResponse.AffirmationBrief affirmations;
         try {
             var a = affirmationService.today(user.getId());
             affirmations = new HomeResponse.AffirmationBrief(a.date(), a.items());
         } catch (RuntimeException e) {
-            affirmations = null;
+            // 只记录异常类型，不记录用户 prompt/正文（H-07 隐私要求）
+            log.warn("home affirmation fallback: type={}", e.getClass().getSimpleName());
+            affirmations = new HomeResponse.AffirmationBrief(BusinessTime.today().toString(), List.of());
         }
         boolean hasRunningTask = taskRepository.existsByUserIdAndStatusNotIn(
                 user.getId(), List.of(
@@ -78,7 +86,7 @@ public class HomeController {
                 new HomeResponse.UserBrief(user.getId(), user.getDisplayName()),
                 todayStory.map(storyService::toResponse).orElse(null),
                 recent.stream().map(storyService::toResponse).toList(),
-                new HomeResponse.AffirmationBrief(affirmations.date(), affirmations.items()),
+                affirmations,
                 hasRunningTask));
     }
 }
