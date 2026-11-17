@@ -1,6 +1,7 @@
 package com.futureself.storage;
 
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -17,4 +18,10 @@ public interface StorageService {
 
     /** 删除对象；不存在时静默成功。 */
     void delete(String key);
+
+    /**
+     * 生成短时读取 URL（H-03）：私有对象必须通过有效期签名访问；
+     * local dev 直接返回 /media 路由，prod 由 OSS/COS 生成签名 URL。
+     */
+    String createReadUrl(String key, Duration ttl);
 }

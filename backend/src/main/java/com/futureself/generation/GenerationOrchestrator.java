@@ -180,7 +180,9 @@ public class GenerationOrchestrator {
     private String backToStage(String errorStage) {
         return switch (errorStage == null ? "" : errorStage) {
             case GenerationTask.STAGE_MODERATION -> GenerationTask.STATUS_TEXT_MODERATING;
-            case GenerationTask.STAGE_AUDIO, GenerationTask.STAGE_STORAGE -> GenerationTask.STATUS_AUDIO_SUBMITTING;
+            case GenerationTask.STAGE_AUDIO -> GenerationTask.STATUS_AUDIO_SUBMITTING;
+            // H-04：转存失败只重试转存，复用同一 providerUrl，绝不重新提交 TTS
+            case GenerationTask.STAGE_STORAGE -> GenerationTask.STATUS_AUDIO_STORING;
             default -> GenerationTask.STATUS_TEXT_GENERATING;
         };
     }
@@ -381,12 +383,7 @@ public class GenerationOrchestrator {
         log.info("audio submitted: taskId={} latencyMs={}", taskId, System.currentTimeMillis() - startedAt);
 
         transactionTemplate.executeWithoutResult(tx -> {
-            // 重新生成场景：旧有效音频标记 SUPERSEDED（§32.5）
-            audioAssetRepository.findTopByStoryIdAndStatusNotOrderByIdDesc(story.getId(), AudioAsset.STATUS_SUPERSEDED)
-                    .ifPresent(old -> {
-                        old.setStatus(AudioAsset.STATUS_SUPERSEDED);
-                        audioAssetRepository.save(old);
-                    });
+            // H-05 blue-green：旧 READY 音频保持可播放，等新音频真正 READY 后再原子切换
             AudioAsset asset = new AudioAsset();
             asset.setUserId(task.getUserId());
             asset.setStoryId(story.getId());
@@ -485,8 +482,16 @@ public class GenerationOrchestrator {
                     AudioQueryResult.JobStatus.READY, asset.getProviderUrl(), asset.getFormat(),
                     asset.getDurationMs(), null, null));
             transactionTemplate.executeWithoutResult(tx -> {
+                // 先把其他 READY 音频标记 SUPERSEDED（blue-green 原子切换）
+                for (AudioAsset other : audioAssetRepository.findByStoryId(asset.getStoryId())) {
+                    if (AudioAsset.STATUS_READY.equals(other.getStatus()) && !other.getId().equals(asset.getId())) {
+                        other.setStatus(AudioAsset.STATUS_SUPERSEDED);
+                        audioAssetRepository.save(other);
+                    }
+                }
                 asset.setStorageKey(stored.key());
                 asset.setPublicUrl(stored.url());
+                asset.setProviderUrl(null); // H-03：转存成功后清理供应商临时 URL
                 asset.setStatus(AudioAsset.STATUS_READY);
                 audioAssetRepository.save(asset);
                 Integer rows = taskRepository.moveTo(task.getId(),
@@ -502,7 +507,7 @@ public class GenerationOrchestrator {
             userEventService.record(task.getUserId(), UserEventService.EVENT_AUDIO_READY, "STORY", task.getStoryId(),
                     Map.of("taskId", task.getId(), "format", asset.getFormat()));
         } catch (BusinessException e) {
-            markAssetFailed(asset, e.errorCode().name(), e.getMessage());
+            // H-04：保留 PROCESSING + providerUrl，下一次 RETRY_WAIT 只重试转存
             handleFailure(taskId, GenerationTask.STAGE_STORAGE, e.errorCode().name(), e.getMessage());
         }
     }
@@ -518,6 +523,11 @@ public class GenerationOrchestrator {
             Integer rows = transactionTemplate.execute(tx -> taskRepository.markFailed(
                     taskId, from, stage, errorCode, truncate(errorMessage, 1000), LocalDateTime.now()));
             log.warn("task failed: taskId={} stage={} code={} rows={}", taskId, stage, errorCode, rows);
+            if (GenerationTask.STAGE_STORAGE.equals(stage) && task.getStoryId() != null) {
+                audioAssetRepository
+                        .findTopByStoryIdAndStatusNotOrderByIdDesc(task.getStoryId(), AudioAsset.STATUS_SUPERSEDED)
+                        .ifPresent(a -> markAssetFailed(a, errorCode, errorMessage));
+            }
             return;
         }
         long backoffMs = generationProps.retryBackoffBaseMs() * (1L << task.getRetryCount());

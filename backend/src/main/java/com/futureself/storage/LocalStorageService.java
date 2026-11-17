@@ -94,4 +94,10 @@ public class LocalStorageService implements StorageService {
         String base = properties.publicBaseUrl();
         return (base.endsWith("/") ? base.substring(0, base.length() - 1) : base) + "/" + key;
     }
+
+    @Override
+    public String createReadUrl(String key, java.time.Duration ttl) {
+        // 本地开发/测试：受控 /media 路由（由 MediaController 提供，仅 local/test profile）
+        return publicUrl(key);
+    }
 }

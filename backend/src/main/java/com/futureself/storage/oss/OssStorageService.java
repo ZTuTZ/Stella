@@ -178,6 +178,23 @@ public class OssStorageService implements StorageService {
         return "https://" + props.bucket() + "." + host + "/" + key;
     }
 
+    /**
+     * 生成 OSS V1 预签名读取 URL（H-03）：
+     * StringToSign = "GET\n\n\n{expires}\n/{bucket}/{key}"，
+     * 查询参数 OSSAccessKeyId / Expires / Signature；调用方需保证 bucket 为私有读。
+     */
+    @Override
+    public String createReadUrl(String key, Duration ttl) {
+        validateKey(key);
+        ensureConfigured();
+        long expires = Instant.now().plus(ttl).getEpochSecond();
+        String stringToSign = "GET\n\n\n" + expires + "\n/" + props.bucket() + "/" + key;
+        String signature = hmacSha1Base64(props.accessKeySecret(), stringToSign);
+        String encoded = java.net.URLEncoder.encode(signature, StandardCharsets.UTF_8);
+        return publicUrl(key) + "?OSSAccessKeyId=" + java.net.URLEncoder.encode(props.accessKeyId(), StandardCharsets.UTF_8)
+                + "&Expires=" + expires + "&Signature=" + encoded;
+    }
+
     /** 生成 OSS V1 Authorization 头（包级可见便于单测）。 */
     String sign(String verb, String contentMd5, String contentType, String date, String key) {
         // 该账号必须三级域名访问；OSS 校验时 CanonicalizedResource 仍为 /{bucket}/{key}

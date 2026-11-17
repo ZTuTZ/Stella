@@ -7,7 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * dev: provider=local（本地文件 + 受控 /media 路由）；prod: provider=oss/cos/s3。
  */
 @ConfigurationProperties("app.storage")
-public record AppStorageProperties(String provider, String localDir, String publicBaseUrl) {
+public record AppStorageProperties(String provider, String localDir, String publicBaseUrl,
+                                  int readUrlTtlMinutes) {
 
     public AppStorageProperties {
         if (provider == null || provider.isBlank()) {
@@ -18,6 +19,9 @@ public record AppStorageProperties(String provider, String localDir, String publ
         }
         if (publicBaseUrl == null || publicBaseUrl.isBlank()) {
             publicBaseUrl = "/media";
+        }
+        if (readUrlTtlMinutes <= 0) {
+            readUrlTtlMinutes = 15;
         }
     }
 }

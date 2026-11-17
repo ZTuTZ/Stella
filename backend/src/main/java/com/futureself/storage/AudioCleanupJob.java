@@ -60,8 +60,30 @@ public class AudioCleanupJob {
                 audioAssetRepository.save(asset);
             }
         }
-        if (!expired.isEmpty() || filesDeleted > 0) {
-            log.info("audio cleanup done: expiredStories={} filesDeleted={}", expired.size(), filesDeleted);
+        // H-05 §6.4：被新音频替换（SUPERSEDED）的旧文件也要按保留期回收
+        int supersededDeleted = 0;
+        for (AudioAsset asset : audioAssetRepository.findByStatusAndUpdatedAtBefore(
+                AudioAsset.STATUS_SUPERSEDED, cutoff)) {
+            if (asset.getStorageKey() == null) {
+                continue;
+            }
+            try {
+                storageService.delete(asset.getStorageKey());
+            } catch (RuntimeException e) {
+                // 删除失败保留 key，下次继续尝试
+                log.warn("superseded audio cleanup failed: key={} {}", asset.getStorageKey(),
+                        e.getClass().getSimpleName());
+                continue;
+            }
+            asset.setStorageKey(null);
+            asset.setPublicUrl(null);
+            audioAssetRepository.save(asset);
+            supersededDeleted++;
+        }
+
+        if (!expired.isEmpty() || filesDeleted > 0 || supersededDeleted > 0) {
+            log.info("audio cleanup done: expiredStories={} filesDeleted={} supersededDeleted={}",
+                    expired.size(), filesDeleted, supersededDeleted);
         }
     }
 }

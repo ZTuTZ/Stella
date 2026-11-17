@@ -30,10 +30,12 @@ public class AudioTransferService {
     private static final Logger log = LoggerFactory.getLogger(AudioTransferService.class);
 
     private final StorageService storageService;
+    private final AudioUrlGuard urlGuard;
     private final HttpClient httpClient;
 
-    public AudioTransferService(StorageService storageService) {
+    public AudioTransferService(StorageService storageService, AudioUrlGuard urlGuard) {
         this.storageService = storageService;
+        this.urlGuard = urlGuard;
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     }
 
@@ -42,6 +44,7 @@ public class AudioTransferService {
         String format = resolveFormat(queryResult);
         String key = "audio/%d/%d/%s.%s".formatted(userId, storyId, UUID.randomUUID(), format);
         try (InputStream input = open(queryResult.url())) {
+            // 注意：open 前已由 urlGuard 校验 scheme/host/路径
             StoredObject saved = storageService.save(key, input, contentTypeOf(format));
             log.info("audio stored: key={} size={} storyId={}", saved.key(), saved.sizeBytes(), storyId);
             return saved;
@@ -52,6 +55,7 @@ public class AudioTransferService {
     }
 
     private InputStream open(String url) throws Exception {
+        urlGuard.assertAllowed(url);
         if (url.startsWith("file:")) {
             return Files.newInputStream(Path.of(URI.create(url)));
         }

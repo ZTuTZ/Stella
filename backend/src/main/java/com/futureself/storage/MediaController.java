@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.Files;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
  * 禁止把完整 access token 等敏感内容经此路由暴露；仅用于音频等业务媒体。
  */
 @RestController
+@Profile({"local", "test"})
 public class MediaController {
 
     private final LocalStorageService storage;

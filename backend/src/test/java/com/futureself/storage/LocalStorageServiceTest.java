@@ -26,7 +26,7 @@ class LocalStorageServiceTest {
 
     @BeforeEach
     void setUp() {
-        storage = new LocalStorageService(new AppStorageProperties("local", tempDir.toString(), "/media"));
+        storage = new LocalStorageService(new AppStorageProperties("local", tempDir.toString(), "/media", 15));
     }
 
     @Test

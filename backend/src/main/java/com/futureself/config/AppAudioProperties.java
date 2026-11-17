@@ -19,7 +19,8 @@ public record AppAudioProperties(
         String secretId,
         String secretKey,
         String region,
-        String syncOutputDir) {
+        String syncOutputDir,
+        String resultHostAllowlist) {
 
     public AppAudioProperties {
         if (provider == null || provider.isBlank()) {
@@ -51,6 +52,9 @@ public record AppAudioProperties(
         }
         if (syncOutputDir == null || syncOutputDir.isBlank()) {
             syncOutputDir = "./data/tencent-sync";
+        }
+        if (resultHostAllowlist == null) {
+            resultHostAllowlist = "";
         }
     }
 }

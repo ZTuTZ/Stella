@@ -4,6 +4,8 @@ import com.futureself.audio.domain.AudioAsset;
 import com.futureself.audio.domain.AudioAssetRepository;
 import com.futureself.common.error.BusinessException;
 import com.futureself.common.error.ErrorCode;
+import com.futureself.config.AppStorageProperties;
+import com.futureself.storage.StorageService;
 import com.futureself.story.api.StoryResponse;
 import com.futureself.story.domain.Story;
 import com.futureself.story.domain.StoryRepository;
@@ -22,10 +24,17 @@ public class StoryService {
 
     private final StoryRepository storyRepository;
     private final AudioAssetRepository audioAssetRepository;
+    private final StorageService storageService;
+    private final AppStorageProperties storageProps;
 
-    public StoryService(StoryRepository storyRepository, AudioAssetRepository audioAssetRepository) {
+    public StoryService(StoryRepository storyRepository,
+                        AudioAssetRepository audioAssetRepository,
+                        StorageService storageService,
+                        AppStorageProperties storageProps) {
         this.storyRepository = storyRepository;
         this.audioAssetRepository = audioAssetRepository;
+        this.storageService = storageService;
+        this.storageProps = storageProps;
     }
 
     @Transactional(readOnly = true)
@@ -81,12 +90,20 @@ public class StoryService {
 
     /** 当前有效音频（§32.5）：非 SUPERSEDED 的最新一条；无音频时为 null。 */
     public Map<String, Object> audioOf(Story story) {
+        // H-05：存在 READY 时优先返回（即使正在生成新音频），否则返回最新在途状态
         return audioAssetRepository
-                .findTopByStoryIdAndStatusNotOrderByIdDesc(story.getId(), AudioAsset.STATUS_SUPERSEDED)
+                .findTopByStoryIdAndStatusOrderByIdDesc(story.getId(), AudioAsset.STATUS_READY)
+                .or(() -> audioAssetRepository.findTopByStoryIdAndStatusNotOrderByIdDesc(
+                        story.getId(), AudioAsset.STATUS_SUPERSEDED))
                 .map(asset -> {
                     Map<String, Object> audio = new LinkedHashMap<>();
                     audio.put("status", asset.getStatus());
-                    audio.put("url", asset.getPublicUrl()); // READY 时才有值（自有存储 URL）
+                    // H-03：READY 时按需生成短时读取 URL；不返回数据库中长期 publicUrl
+                    String url = AudioAsset.STATUS_READY.equals(asset.getStatus()) && asset.getStorageKey() != null
+                            ? storageService.createReadUrl(asset.getStorageKey(),
+                                    java.time.Duration.ofMinutes(storageProps.readUrlTtlMinutes()))
+                            : null;
+                    audio.put("url", url);
                     audio.put("durationMs", asset.getDurationMs());
                     audio.put("format", asset.getFormat());
                     return audio;

@@ -32,7 +32,7 @@ class TencentCloudAudioContractTest {
         assertThat(secretKey).as("AI_AUDIO_TENCENT_SECRET_KEY").isNotBlank();
 
         AppAudioProperties props = new AppAudioProperties(
-                "tencent", "", "", voiceId, 0, "./data/mock-audio", secretId, secretKey, "ap-guangzhou", "target/test-media/tencent-sync");
+                "tencent", "", "", voiceId, 0, "./data/mock-audio", secretId, secretKey, "ap-guangzhou", "target/test-media/tencent-sync", "");
         TencentCloudAudioProvider provider = new TencentCloudAudioProvider(props, new ObjectMapper());
 
         AudioSubmitResult submitted = provider.submit(new AudioGenerationRequest(
