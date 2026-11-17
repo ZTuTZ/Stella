@@ -130,6 +130,12 @@ app:
 - **资源包**：长文本接口无免费额度；账号需在 [语音合成控制台](https://console.cloud.tencent.com/tts) 购买资源包，否则调用返回 `UnsupportedOperation.PkgExhausted`。
   - 免费路径：`tencent-sync` + 控制台领取免费额度（精品 800 万 / 大模型 10 万字符）。
 - 契约测试：`AI_AUDIO_TENCENT_CONTRACT=true` 显式开启（避免 CI 扣费/依赖资源包）。
-- 长文本音色列表与通用接口不同（精品/大模型档），`AI_AUDIO_VOICE_ID` 必须取自“长文本语音合成音色列表”；超自然大模型 2.0 仅支持通用同步接口。
+- 音色 ID 以官方《音色列表》为准（2026-11 版 PDF 核对）：
+  - **大模型音色（免费额度 10 万字符）**：`501001` 智兰(资讯女声)、`501004` 月华(聊天女声)、`501000` 智斌(阅读男声)、`601009` 爱小芊(聊天女声) 等（501xxx/601xxx）；
+  - 精品音色（免费额度 800 万字符）：`101001` 智瑜(情感女声) 等（101xxx）；
+  - 超自然大模型 2.0：`402000` 云晓芙 等；
+  - **注意：`301001` 等不在官方列表中**，误用会因“无匹配资源包”报 `UnsupportedOperation.PkgExhausted`（本项曾踩坑）。
+- 长文本语音合成音色列表同样包含 `501xxx/601xxx`（大模型）与 `101xxx`（精品），但长文本接口无免费额度。
+- 本地存储路径 `STORAGE_LOCAL_DIR` 是**相对进程工作目录**：用 `mvn -f backend/pom.xml spring-boot:run` 时实际为 `backend/data/media/...`。
 - 音频时长 `durationMs` 供应商不返回，暂为 null（前端播放器以音频真实 duration 为准）。
 - 契约测试：`TencentCloudAudioContractTest` 由 `AI_AUDIO_TENCENT_CONTRACT=true` 显式开启（默认跳过，避免 CI 扣费/依赖资源包）。

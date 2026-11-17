@@ -71,7 +71,9 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 | `tencent-sync` | 基础同步 `TextToVoice` + 150 字分段拼接 | **免费额度**：控制台 [资源包页](https://console.cloud.tencent.com/tts/resourcebundle) 领取（精品 800 万 / 大模型 10 万字符） |
 | `tencent` | 长文本异步 `CreateTtsTask` | **付费资源包**（长文本无免费额度） |
 
-配置：`AI_AUDIO_VOICE_ID`（如 301001 大模型 / 101001 精品）、`AI_AUDIO_TENCENT_SECRET_ID/KEY`（仅 .env）。
+配置：`AI_AUDIO_VOICE_ID`（大模型音色示例：`501004` 月华 / `501001` 智兰；精品：`101001` 智瑜）、`AI_AUDIO_TENCENT_SECRET_ID/KEY`（仅 .env）。
+注意：音色 ID 必须取自官方音色列表；错误 ID 会因无匹配资源包报 `PkgExhausted`。
+音频落盘位置：`STORAGE_LOCAL_DIR`（默认 `./data/media`，相对后端进程工作目录；`mvn -f backend/pom.xml spring-boot:run` 时为 `backend/data/media`）。
 契约测试：`AI_AUDIO_TENCENT_CONTRACT=true mvn test -Dtest=TencentCloudAudioContractTest`（会真实计费，少量字符）。
 
 ## Mock 音频

@@ -64,7 +64,7 @@ cd admin-web && npm run build
 - [x] Phase 4 — Story Generation（任务状态机+worker、STORY prompt、输入/输出规则审核、失败重试、重启恢复、故事详情）
 - [x] 小程序 UI Phase 0~4（设计系统/Onboarding/Home/沉浸播放器/Library+Profile+设置，custom-tab-bar）
 - [x] Phase 5 — AI Audio Framework（AiAudioProvider+Mock、audio_asset、音频阶段状态机、Storage 转存、retry-audio、supersede）
-- [x] Phase 6 — 真实音频 API（腾讯云 TTS：`tencent` 长文本异步 + `tencent-sync` 基础同步分段；TC3 签名/状态映射/错误映射/转存；见 docs/API_AUDIO_PROVIDER_MAPPING.md）
+- [x] Phase 6 — 真实音频 API（腾讯云 TTS：`tencent` 长文本异步 + `tencent-sync` 基础同步分段；**已真实联调出声**：TC3 签名/状态映射/错误映射/转存；见 docs/API_AUDIO_PROVIDER_MAPPING.md）
 - [x] Phase 8 — 管理后台 + 稳定性（admin 登录/用户/内容/任务重试/Prompt 切换/AI 日志/Dashboard + 四类限流 + 注销预留 + 音频清理任务）
 - [x] 小程序 UI Phase 0~4（设计系统/Onboarding/Home/沉浸播放器/Library+Profile+设置，custom-tab-bar）
 - [x] Phase 7 — Affirmation + Home + Story Library（当日幂等肯定句、首页聚合、列表分页/收藏/软删除、user_event 埋点）
