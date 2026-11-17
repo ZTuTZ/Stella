@@ -80,3 +80,11 @@
 ## 限流（§24）
 
 创建 Goal 30 次/小时；追问 20 次/小时；生成故事 10 次/日；重试音频 5 次/故事/日。幂等键 Redis TTL 24h。
+
+## V1.0.1 变更说明（H-03）
+
+- `GET /api/v1/stories/{id}` 中 `audio.url` 为**短时读取 URL**（默认 15 分钟，`STORAGE_READ_URL_TTL_MINUTES`）：
+  - local/test：`/media/audio/...`（仅本地开发路由）
+  - prod：OSS 预签名 URL（bucket 私有读）
+- `audio.url` 仅在 `status=READY` 且存在 `storage_key` 时返回；生成中返回 `null` + 最新状态。
+- 重新生成音频期间：若存在旧 READY 音频，仍返回旧的可用 URL（blue-green），新音频 READY 后自动切换。

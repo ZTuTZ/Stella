@@ -54,6 +54,12 @@ PENDING → TEXT_GENERATING → TEXT_MODERATING → TEXT_READY
 - `story.generation_task_id` 在任务回写 `story_id` 的同一事务中互相关联（Phase 4 实现）。
 - 集成测试连接独立库 `future_self_test`（profile `test`），Redis 用 db15，不污染开发库。
 
+## V1.0.1 语义变更（无 migration）
+
+- `audio_asset.public_url` 不再作为播放地址事实源（H-03）：业务按 `storage_key` 实时生成短时 URL；
+  转存成功后 `provider_url` 会被清空（只保留 provider task id 等审计信息）。
+- `audio_asset` 采用 blue-green：新音频 READY 前旧 READY 保持有效；切换后旧记录置 `SUPERSEDED` 并按保留期清理对象。
+
 ## V1.0.1 schema 增量（hardening）
 
 ### V3__generation_task_idempotency.sql

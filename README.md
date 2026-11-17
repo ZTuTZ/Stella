@@ -58,23 +58,41 @@ cd admin-web && npm run build
 
 ## 状态
 
-- [x] Phase 0 — 项目骨架（backend 可启动 /actuator/health；miniapp 空首页 + tokens；admin-web 可构建）
-- [x] Phase 1 — 数据库与基础设施（Flyway V1 全部 11 表；统一响应/错误码/requestId；Storage 本地实现 + 受控 /media）
+### V1 功能阶段
+
+- [x] Phase 0 — 项目骨架（backend 可启动 /actuator/health；miniapp tokens；admin-web 可构建）
+- [x] Phase 1 — 数据库与基础设施（Flyway V1 11 表；统一响应/错误码/requestId；本地 Storage + 受控 /media）
 - [x] Phase 2 — Auth + User + Profile（mock/真实微信登录、opaque token、Me/LifeProfile、onboarding）
 - [x] Phase 3 — Goal + AI Followup（Goal CRUD、TextAiProvider mock/openai、Prompt v1 seed、追问全流程、ai_call_log）
-- [x] Phase 4 — Story Generation（任务状态机+worker、STORY prompt、输入/输出规则审核、失败重试、重启恢复、故事详情）
-- [x] 小程序 UI Phase 0~4（设计系统/Onboarding/Home/沉浸播放器/Library+Profile+设置，custom-tab-bar）
-- [x] Phase 5 — AI Audio Framework（AiAudioProvider+Mock、audio_asset、音频阶段状态机、Storage 转存、retry-audio、supersede）
-- [x] Phase 6 — 真实音频 API（腾讯云 TTS：`tencent` 长文本异步 + `tencent-sync` 基础同步分段；**已真实联调出声**：TC3 签名/状态映射/错误映射/转存；见 docs/API_AUDIO_PROVIDER_MAPPING.md）
-- [x] Phase 8 — 管理后台 + 稳定性（admin 登录/用户/内容/任务重试/Prompt 切换/AI 日志/Dashboard + 四类限流 + 注销预留 + 音频清理任务）
-- [x] 小程序 UI Phase 0~4（设计系统/Onboarding/Home/沉浸播放器/Library+Profile+设置，custom-tab-bar）
-- [x] Phase 7 — Affirmation + Home + Story Library（当日幂等肯定句、首页聚合、列表分页/收藏/软删除、user_event 埋点）
-- [ ] Phase 4 — Story Generation
-- [ ] Phase 5 — AI Audio Framework
-- [ ] Phase 6 — 真实音频 API（条件阶段）
-- [ ] Phase 7 — Affirmation + Home + Story Library
-- [ ] Phase 8 — 管理后台 + 稳定性
-- [x] Phase 9 — 发布前清单（12 项逐项验证 + §39 场景核对，见 docs/PHASE9_CHECKLIST.md）
+- [x] Phase 4 — Story Generation（任务状态机 + worker、STORY prompt、输入/输出审核、失败重试、重启恢复、故事详情）
+- [x] Phase 5 — AI Audio Framework（AiAudioProvider + Mock、audio_asset、音频状态机、Storage 转存、retry-audio）
+- [x] Phase 6 — 真实音频 Provider（腾讯云 TTS：`tencent` 长文本异步 + `tencent-sync` 基础同步分段，已真实联调出声）
+- [x] Phase 7 — Affirmation + Home + Story Library（当日幂等肯定句、首页聚合、分页/收藏/软删除、user_event 埋点）
+- [x] Phase 8 — 管理后台 + 稳定性（admin 8 页、任务重试、Prompt 切换、AI 日志、Dashboard、四类限流、音频清理）
+- [x] Phase 9 — 发布前检查清单（docs/PHASE9_CHECKLIST.md）
+- [x] 小程序 UI Phase 0~4（设计系统/Onboarding/Home/沉浸播放器/Library+Profile+设置/custom-tab-bar）
+- [x] 管理后台 UI 重做（Element Plus + 全中文状态 + 表格/详情/筛选/自动刷新）
+
+### V1.0.1 Hardening（2026-11）
+
+- [x] H-01 首页 Affirmation 故障隔离（失败返回空列表，不再 NPE/500）
+- [x] H-02 限流改为真实固定小时窗口（Asia/Shanghai），幂等重放不消耗配额
+- [x] H-03 私人音频改为短时读取 URL（OSS 预签名）；本地 `/media` 仅 local/test
+- [x] H-04 Storage 失败只重试转存，不重复调用 TTS
+- [x] H-05 音频 Blue-Green 切换：新音频 READY 后才淘汰旧音频；SUPERSEDED 按保留期清理
+- [x] H-06 生成任务持久幂等（V3 + goal 行锁），Redis 仅作缓存
+- [x] H-07 AI 日志只保留 operation/长度/hash，不保存正文
+- [x] H-08 音频结果 URL 校验（file 白名单目录 / https + host allowlist / 私网拒绝）
+- [x] H-09 STORY / FOLLOWUP / AFFIRMATION 最终上下文统一审核
+- [x] H-10 生产 profile + 启动 fail-fast；小程序按 envVersion 区分 API 域名，release 不回退 localhost
+- [x] H-11 管理端登录失败限流（IP + usernameHash）
+- [x] H-12 GitHub Actions CI（backend / admin-web / miniapp / secret scan）
+
+### 生产约束（必须遵守）
+
+- `SPRING_PROFILES_ACTIVE=prod` 启动；mock provider / local storage / 空密钥会**直接启动失败**（见 docs/RUNBOOK.md）。
+- OSS bucket 建议私有读，播放走短时签名 URL；小程序需配置合法域名 + HTTPS。
+- 后端 worker 目前**仅支持单实例**（replica = 1）。
 
 ## 常见问题
 
