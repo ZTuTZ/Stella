@@ -19,11 +19,11 @@
     <view class="chips">
       <pill-chip
         wx:for="{{focusOptions}}"
-        wx:key="*this"
-        label="{{item}}"
-        selected="{{focusAreas.indexOf(item) > -1}}"
+        wx:key="label"
+        label="{{item.label}}"
+        selected="{{item.selected}}"
         bind:tap="onToggleFocus"
-        data-area="{{item}}"
+        data-area="{{item.label}}"
       />
     </view>
   </view>

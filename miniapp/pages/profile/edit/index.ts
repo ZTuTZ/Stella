@@ -8,10 +8,19 @@ import { ImportantPerson, LifeProfileResponse, MeResponse } from "../../../types
 
 const FOCUS_OPTIONS = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
 
+interface FocusOption {
+  label: string;
+  selected: boolean;
+}
+
+function buildFocusOptions(selectedAreas: string[]): FocusOption[] {
+  return FOCUS_OPTIONS.map((label) => ({ label, selected: selectedAreas.indexOf(label) > -1 }));
+}
+
 Page({
   data: {
     displayName: "",
-    focusOptions: FOCUS_OPTIONS,
+    focusOptions: [] as FocusOption[],
     focusAreas: [] as string[],
     currentSituation: "",
     importantPeople: [] as ImportantPerson[],
@@ -31,6 +40,7 @@ Page({
       this.setData({
         displayName: me.displayName,
         focusAreas: profile.focusAreas || [],
+        focusOptions: buildFocusOptions(profile.focusAreas || []),
         currentSituation: profile.currentSituation || "",
         importantPeople: profile.importantPeople || [],
         preferences: profile.preferences || {},
@@ -57,7 +67,7 @@ Page({
       }
       list.push(area);
     }
-    this.setData({ focusAreas: list, focusError: "" });
+    this.setData({ focusAreas: list, focusOptions: buildFocusOptions(list), focusError: "" });
   },
 
   onSituationInput(e: WechatMiniprogram.Input) {

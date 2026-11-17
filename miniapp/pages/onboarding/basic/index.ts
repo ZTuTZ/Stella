@@ -8,11 +8,20 @@ import { OnboardingDraft } from "../../../stores/onboarding";
 
 const FOCUS_OPTIONS = ["事业", "财富", "爱情", "家庭", "自信", "健康生活方式", "学习成长", "旅行", "其他"];
 
+interface FocusOption {
+  label: string;
+  selected: boolean;
+}
+
+function buildFocusOptions(selectedAreas: string[]): FocusOption[] {
+  return FOCUS_OPTIONS.map((label) => ({ label, selected: selectedAreas.indexOf(label) > -1 }));
+}
+
 Page({
   data: {
     step: 1,
     progressText: "1 / 6",
-    focusOptions: FOCUS_OPTIONS,
+    focusOptions: buildFocusOptions(loadDraft().focusAreas),
     draft: loadDraft() as OnboardingDraft,
     nameError: "",
     focusError: "",
@@ -36,7 +45,11 @@ Page({
       }
       list.push(area);
     }
-    this.setData({ "draft.focusAreas": list, focusError: "" });
+    this.setData({
+      "draft.focusAreas": list,
+      focusOptions: buildFocusOptions(list),
+      focusError: "",
+    });
   },
 
   goBack() {
