@@ -22,6 +22,17 @@ public interface GenerationTaskRepository extends JpaRepository<GenerationTask, 
     // —— 运行中任务检查（§24 幂等/防重复）——
     boolean existsByGoalIdAndStatusNotIn(Long goalId, List<String> statuses);
 
+    /** 测试隔离：清理非终态任务，避免历史沉积任务抢占 worker 扫描顺序。 */
+    @org.springframework.transaction.annotation.Transactional
+    @Modifying
+    @Query("delete from GenerationTask t where t.status in :statuses")
+    int deleteByStatusIn(@Param("statuses") List<String> statuses);
+
+    /** 持久幂等查询（H-06）：同一用户 + 同一 Idempotency-Key 至多一条任务。 */
+    Optional<GenerationTask> findByUserIdAndIdempotencyKey(Long userId, String idempotencyKey);
+
+    long countByUserIdAndIdempotencyKey(Long userId, String idempotencyKey);
+
     /** 用户是否存在运行中任务（首页聚合 §12.7）。 */
     boolean existsByUserIdAndStatusNotIn(Long userId, List<String> statuses);
 

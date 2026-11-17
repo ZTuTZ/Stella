@@ -45,6 +45,26 @@ class DatabaseMigrationTest {
     }
 
     @Test
+    void v3IdempotencyIndexExists() {
+        Integer index = jdbcTemplate.queryForObject(
+                "SELECT COUNT(DISTINCT index_name) FROM information_schema.statistics "
+                        + "WHERE table_schema = DATABASE() AND table_name = 'generation_task' "
+                        + "AND index_name = 'uk_task_user_idempotency'",
+                Integer.class);
+        assertThat(index).isEqualTo(1);
+        Integer column = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() "
+                        + "AND table_name = 'generation_task' AND column_name = 'idempotency_key' "
+                        + "AND is_nullable = 'YES'",
+                Integer.class);
+        assertThat(column).isEqualTo(1);
+        Integer version3 = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM flyway_schema_history WHERE version = '3' AND success = 1",
+                Integer.class);
+        assertThat(version3).isEqualTo(1);
+    }
+
+    @Test
     void keyIndexesExist() {
         record IndexCheck(String table, String index) {
         }

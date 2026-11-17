@@ -53,3 +53,12 @@ PENDING → TEXT_GENERATING → TEXT_MODERATING → TEXT_READY
 - `updated_at` 由 MySQL `ON UPDATE CURRENT_TIMESTAMP(3)` 维护；实体层不再重复管理。
 - `story.generation_task_id` 在任务回写 `story_id` 的同一事务中互相关联（Phase 4 实现）。
 - 集成测试连接独立库 `future_self_test`（profile `test`），Redis 用 db15，不污染开发库。
+
+## V1.0.1 schema 增量（hardening）
+
+### V3__generation_task_idempotency.sql
+
+- `generation_task.idempotency_key VARCHAR(128) NULL`：请求 `Idempotency-Key`（H-06 持久幂等）
+- `UNIQUE KEY uk_task_user_idempotency (user_id, idempotency_key)`：同一用户同一 key 至多一条任务；
+  历史数据为 NULL（MySQL 允许多行 NULL），不回填。
+- 创建任务时对 `manifestation_goal` 行加 `SELECT ... FOR UPDATE` 悲观锁，串行化“检查 active + INSERT”。

@@ -58,6 +58,10 @@ public class GenerationTask {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 请求幂等键（V3 migration，user_id + idempotency_key 唯一；历史数据为 NULL）。 */
+    @Column(name = "idempotency_key", length = 128)
+    private String idempotencyKey;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
@@ -248,5 +252,13 @@ public class GenerationTask {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
     }
 }

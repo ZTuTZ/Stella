@@ -6,6 +6,7 @@ import com.futureself.generation.domain.GenerationTask;
 import com.futureself.generation.domain.GenerationTaskRepository;
 import com.futureself.story.domain.Story;
 import com.futureself.story.domain.StoryRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -89,6 +91,20 @@ class GenerationFlowIntegrationTest {
     }
 
     /** 手动驱动编排器直至任务达到目标状态或超时。 */
+    /** 等待“重试已记录”（RETRY_WAIT 是瞬时态，退避 0 时可能很快进入下一次尝试）。 */
+    private GenerationTask awaitRetryRecorded(long taskId, long timeoutMs) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            orchestrator.processNext();
+            GenerationTask task = taskRepository.findById(taskId).orElseThrow();
+            if (task.getRetryCount() >= 1) {
+                return task;
+            }
+            TimeUnit.MILLISECONDS.sleep(50);
+        }
+        throw new AssertionError("timeout waiting retry recorded for task " + taskId);
+    }
+
     private GenerationTask awaitStatus(long taskId, String targetStatus, long timeoutMs) throws InterruptedException {
         long deadline = System.currentTimeMillis() + timeoutMs;
         while (System.currentTimeMillis() < deadline) {
@@ -102,6 +118,19 @@ class GenerationFlowIntegrationTest {
         GenerationTask task = taskRepository.findById(taskId).orElseThrow();
         throw new AssertionError("timeout waiting " + targetStatus + ", current=" + task.getStatus()
                 + " error=" + task.getErrorCode() + "/" + task.getErrorMessage());
+    }
+
+    @BeforeEach
+    void clearStaleTasks() {
+        taskRepository.deleteByStatusIn(List.of(
+                GenerationTask.STATUS_PENDING,
+                GenerationTask.STATUS_RETRY_WAIT,
+                GenerationTask.STATUS_TEXT_GENERATING,
+                GenerationTask.STATUS_TEXT_MODERATING,
+                GenerationTask.STATUS_TEXT_READY,
+                GenerationTask.STATUS_AUDIO_SUBMITTING,
+                GenerationTask.STATUS_AUDIO_PROCESSING,
+                GenerationTask.STATUS_AUDIO_STORING));
     }
 
     @Test
@@ -156,8 +185,8 @@ class GenerationFlowIntegrationTest {
         long goalId = createGoal(token);
         long taskId = startTask(token, goalId, "idem-" + UUID.randomUUID());
 
-        // 第一次推进：PENDING → TEXT_GENERATING → AI 失败 → RETRY_WAIT（test 配置退避 0，可立即重试）
-        GenerationTask afterFirst = awaitStatus(taskId, GenerationTask.STATUS_RETRY_WAIT, 10000);
+        // 第一次推进：PENDING → TEXT_GENERATING → AI 失败 → RETRY_WAIT（test 退避 0，可能立即重试）
+        GenerationTask afterFirst = awaitRetryRecorded(taskId, 30000);
         assertThat(afterFirst.getRetryCount()).isEqualTo(1);
         assertThat(afterFirst.getErrorStage()).isEqualTo(GenerationTask.STAGE_TEXT);
         assertThat(afterFirst.getErrorCode()).isEqualTo("TEXT_AI_UNAVAILABLE");

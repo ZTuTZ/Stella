@@ -10,16 +10,16 @@ import com.futureself.audio.domain.AudioAssetRepository;
 import com.futureself.generation.domain.GenerationTask;
 import com.futureself.generation.domain.GenerationTaskRepository;
 import com.futureself.goal.GoalService;
+import com.futureself.goal.domain.GoalRepository;
 import com.futureself.goal.domain.ManifestationGoal;
 import com.futureself.story.domain.Story;
 import com.futureself.story.domain.StoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,16 +35,16 @@ import java.util.UUID;
 public class GenerationTaskService {
 
     private static final Logger log = LoggerFactory.getLogger(GenerationTaskService.class);
-    private static final String IDEMPOTENCY_PREFIX = "fs:idempotency:";
-    private static final Duration IDEMPOTENCY_TTL = Duration.ofHours(24);
+    private static final int IDEMPOTENCY_KEY_MAX_LENGTH = 128;
     private static final List<String> TERMINAL_STATUSES = List.of(
             GenerationTask.STATUS_COMPLETED, GenerationTask.STATUS_FAILED, GenerationTask.STATUS_BLOCKED);
 
     private final GenerationTaskRepository taskRepository;
     private final GoalService goalService;
+    private final GoalRepository goalRepository;
+    private final IdempotencyCache idempotencyCache;
     private final StoryRepository storyRepository;
     private final AudioAssetRepository audioAssetRepository;
-    private final StringRedisTemplate redis;
     private final AppGenerationProperties generationProps;
     private final TransactionTemplate transactionTemplate;
     private final RateLimitService rateLimitService;
@@ -52,18 +52,20 @@ public class GenerationTaskService {
 
     public GenerationTaskService(GenerationTaskRepository taskRepository,
                                  GoalService goalService,
+                                 GoalRepository goalRepository,
+                                 IdempotencyCache idempotencyCache,
                                  StoryRepository storyRepository,
                                  AudioAssetRepository audioAssetRepository,
-                                 StringRedisTemplate redis,
                                  AppGenerationProperties generationProps,
                                  TransactionTemplate transactionTemplate,
                                  RateLimitService rateLimitService,
                                  AppRateLimitProperties rateLimitProps) {
         this.taskRepository = taskRepository;
         this.goalService = goalService;
+        this.goalRepository = goalRepository;
+        this.idempotencyCache = idempotencyCache;
         this.storyRepository = storyRepository;
         this.audioAssetRepository = audioAssetRepository;
-        this.redis = redis;
         this.generationProps = generationProps;
         this.transactionTemplate = transactionTemplate;
         this.rateLimitService = rateLimitService;
@@ -74,41 +76,94 @@ public class GenerationTaskService {
     }
 
     public CreatedTask create(long userId, long goalId, String idempotencyKey) {
-        // 幂等优先（H-02 §3.4）：已存在的同一请求直接返回，不重复消耗日配额
-        String redisKey = idempotencyKey == null || idempotencyKey.isBlank()
-                ? null : IDEMPOTENCY_PREFIX + userId + ":" + idempotencyKey.trim();
-        if (redisKey != null) {
-            String existingTaskId = redis.opsForValue().get(redisKey);
-            if (existingTaskId != null) {
-                GenerationTask task = taskRepository.findById(Long.parseLong(existingTaskId))
-                        .orElseThrow(() -> new BusinessException(ErrorCode.TASK_NOT_FOUND));
+        String key = normalizeIdempotencyKey(idempotencyKey);
+
+        // 1) 缓存快速路径（Redis 异常自动降级）
+        if (key != null) {
+            var cached = idempotencyCache.find(userId, key);
+            if (cached.isPresent()) {
+                return taskRepository.findById(cached.get())
+                        .filter(t -> t.getUserId().equals(userId))
+                        .map(t -> new CreatedTask(t.getId(), t.getStatus()))
+                        .orElseGet(() -> createDurably(userId, goalId, key));
+            }
+        }
+        return createDurably(userId, goalId, key);
+    }
+
+    private CreatedTask createDurably(long userId, long goalId, String key) {
+        // 2) DB 持久幂等（事实源）：已存在直接返回，不消耗限流
+        if (key != null) {
+            var existing = taskRepository.findByUserIdAndIdempotencyKey(userId, key);
+            if (existing.isPresent()) {
+                GenerationTask task = existing.get();
                 return new CreatedTask(task.getId(), task.getStatus());
             }
         }
 
+        // 3) 校验目标归属
         ManifestationGoal goal = goalService.loadOwnGoal(goalId, userId);
 
-        // 只有真正要创建新任务时才消耗限流：生成故事 10 次/日/用户（§24）
+        // 4) 只有真正要创建新任务时才消耗日配额
         if (!rateLimitService.allowDaily(userId, "story-generate", rateLimitProps.storyGeneratePerDay())) {
             throw new BusinessException(ErrorCode.RATE_LIMITED);
         }
-        if (taskRepository.existsByGoalIdAndStatusNotIn(goalId, TERMINAL_STATUSES)) {
+
+        // 5) 短事务：锁定 goal 行 → 检查 active task → INSERT（不包住任何 AI 调用）
+        try {
+            CreatedTask created = transactionTemplate.execute(status -> {
+                goalRepository.findByIdForUpdate(goal.getId())
+                        .orElseThrow(() -> new BusinessException(ErrorCode.GOAL_NOT_FOUND));
+                // 拿到 goal 锁后再次检查幂等键：并发下另一个请求可能已提交同一任务
+                if (key != null) {
+                    var raced = taskRepository.findByUserIdAndIdempotencyKey(userId, key);
+                    if (raced.isPresent()) {
+                        GenerationTask task = raced.get();
+                        return new CreatedTask(task.getId(), task.getStatus());
+                    }
+                }
+                if (taskRepository.existsByGoalIdAndStatusNotIn(goalId, TERMINAL_STATUSES)) {
+                    throw new BusinessException(ErrorCode.TASK_ALREADY_RUNNING);
+                }
+                GenerationTask task = new GenerationTask();
+                task.setUserId(userId);
+                task.setGoalId(goal.getId());
+                task.setStatus(GenerationTask.STATUS_PENDING);
+                task.setProgress(GenerationTask.PROGRESS_PENDING);
+                task.setMaxRetryCount(generationProps.maxRetryCount());
+                task.setIdempotencyKey(key);
+                GenerationTask saved = taskRepository.saveAndFlush(task);
+                return new CreatedTask(saved.getId(), saved.getStatus());
+            });
+            if (key != null && created != null) {
+                idempotencyCache.put(userId, key, created.taskId());
+            }
+            if (created != null) {
+                log.info("generation task created: taskId={} goalId={}", created.taskId(), goalId);
+            }
+            return created;
+        } catch (DataIntegrityViolationException e) {
+            // 唯一键冲突：并发下另一请求已完成创建 → 回查并返回同一条任务
+            if (key != null) {
+                var existing = taskRepository.findByUserIdAndIdempotencyKey(userId, key);
+                if (existing.isPresent()) {
+                    GenerationTask task = existing.get();
+                    return new CreatedTask(task.getId(), task.getStatus());
+                }
+            }
             throw new BusinessException(ErrorCode.TASK_ALREADY_RUNNING);
         }
+    }
 
-        GenerationTask task = new GenerationTask();
-        task.setUserId(userId);
-        task.setGoalId(goal.getId());
-        task.setStatus(GenerationTask.STATUS_PENDING);
-        task.setProgress(GenerationTask.PROGRESS_PENDING);
-        task.setMaxRetryCount(generationProps.maxRetryCount());
-        GenerationTask saved = taskRepository.save(task);
-
-        if (redisKey != null) {
-            redis.opsForValue().set(redisKey, String.valueOf(saved.getId()), IDEMPOTENCY_TTL);
+    private static String normalizeIdempotencyKey(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
         }
-        log.info("generation task created: taskId={} goalId={}", saved.getId(), goalId);
-        return new CreatedTask(saved.getId(), saved.getStatus());
+        String key = raw.trim();
+        if (key.length() > IDEMPOTENCY_KEY_MAX_LENGTH) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED, "Idempotency-Key too long");
+        }
+        return key;
     }
 
     public GenerationTask loadOwnTask(long taskId, long userId) {
