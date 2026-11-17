@@ -80,6 +80,20 @@ cd admin-web && npm run build   # 前端类型检查 + 构建
 
 放入 `docs/external/audio/` 后，按实施文档 §15.5 / §37 执行真实 Provider 接入。
 
+## 零成本演示模式（UI/流程测试）
+
+把生成相关两项切回 mock 即可，**不动代码、不重新部署**：
+
+```bash
+AI_TEXT_PROVIDER=mock    # 故事/追问/肯定句用固定文案，仍走数据库与任务状态机
+AI_AUDIO_PROVIDER=mock   # 2 秒静音 WAV fixture，3 秒后 READY
+```
+
+- 固定文案：故事《工作室的一个普通早晨》（51 字）、追问 2 题、肯定句 6 条；
+- 音频：`data/mock-audio/mock-narration.wav`（启动自动生成），仍会经 StorageService 转存（OSS/本地均可）；
+- 除 LLM/TTS 外的所有能力保持真实：登录、档案、目标、生成任务状态机、首页、故事库、收藏、管理后台；
+- 切回真实：`AI_TEXT_PROVIDER=openai` + `AI_AUDIO_PROVIDER=tencent-sync`（key 已在 .env）。
+
 ## 真实音频（腾讯云 TTS）
 
 两种实现，改 `AI_AUDIO_PROVIDER` 即可切换（业务层零改动）：
