@@ -373,9 +373,11 @@ public class GenerationOrchestrator {
             submitted = audioProvider.submit(request);
         } catch (BusinessException e) {
             log.warn("audio submit failed: taskId={} code={}", taskId, e.errorCode());
+            recordAudioCall(task, "AUDIO_SUBMIT", startedAt, false, e.errorCode().name(), e.getMessage());
             handleFailure(taskId, GenerationTask.STAGE_AUDIO, e.errorCode().name(), e.getMessage());
             return;
         }
+        recordAudioCall(task, "AUDIO_SUBMIT", startedAt, true, null, null);
         log.info("audio submitted: taskId={} latencyMs={}", taskId, System.currentTimeMillis() - startedAt);
 
         transactionTemplate.executeWithoutResult(tx -> {
@@ -425,7 +427,16 @@ public class GenerationOrchestrator {
             return;
         }
 
-        AudioQueryResult query = audioProvider.query(asset.getProviderTaskId());
+        long queryStartedAt = System.currentTimeMillis();
+        AudioQueryResult query;
+        try {
+            query = audioProvider.query(asset.getProviderTaskId());
+            recordAudioCall(task, "AUDIO_QUERY", queryStartedAt, true, null, null);
+        } catch (BusinessException e) {
+            recordAudioCall(task, "AUDIO_QUERY", queryStartedAt, false, e.errorCode().name(), e.getMessage());
+            handleFailure(taskId, GenerationTask.STAGE_AUDIO, e.errorCode().name(), e.getMessage());
+            return;
+        }
         if (query == null || query.status() == AudioQueryResult.JobStatus.PROCESSING) {
             return; // 下一个 tick 再查
         }
@@ -543,6 +554,27 @@ public class GenerationOrchestrator {
                 errorCode,
                 errorMessage,
                 requestSummary(request),
+                null));
+    }
+
+    /** 音频 AI 调用日志（§10.9）：provider_type=AUDIO，便于 dashboard 平均耗时与链路排查。 */
+    private void recordAudioCall(GenerationTask task, String operation, long startedAt,
+                                 boolean success, String errorCode, String errorMessage) {
+        aiCallLogService.record(new AiCallLogService.CallRecord(
+                currentRequestId(),
+                task.getUserId(),
+                task.getId(),
+                AiCallLog.TYPE_AUDIO,
+                audioProvider.providerName(),
+                null,
+                operation,
+                System.currentTimeMillis() - startedAt,
+                success,
+                null,
+                null,
+                errorCode,
+                errorMessage,
+                null,
                 null));
     }
 

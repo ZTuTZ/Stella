@@ -52,6 +52,12 @@ public class OpenAiCompatibleTextAiProvider implements TextAiProvider {
         long startedAt = System.currentTimeMillis();
         List<ChatMessage> messages = new ArrayList<>();
         messages.add(new ChatMessage("system", request.systemPrompt()));
+        // 把结构化输出 Schema 明确发给模型：否则模型可能自定义字段（如 {"story": ...}）导致解析失败
+        if (request.outputSchema() != null && !request.outputSchema().isBlank()) {
+            messages.add(new ChatMessage("system",
+                    "必须严格按照以下 JSON Schema 输出，字段名与结构不得改动，只输出 JSON 对象：\n"
+                            + request.outputSchema()));
+        }
         messages.add(new ChatMessage("user", request.userPrompt()));
 
         var payload = java.util.Map.of(

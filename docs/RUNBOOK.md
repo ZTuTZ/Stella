@@ -124,6 +124,9 @@ READY 返回项目内 fixture（`AI_AUDIO_MOCK_FIXTURE_DIR`，启动时自动生
 要求模型支持 `response_format=json_object`；不支持时需给 Provider 加开关（当前固定发送）。
 故事长度由 `prompt_template` 的 STORY 模板控制（默认 900~1800 中文字），改 Prompt 请走后台新建版本。
 
+**结构化输出**：Provider 会把 `output_schema_json` 作为 system 消息注入模型（否则模型可能自定义字段导致解析失败，已实测踩坑）。
+音频调用（`AUDIO_SUBMIT`/`AUDIO_QUERY`）同样写入 `ai_call_log`，Dashboard 可看音频平均耗时。
+
 ## Mock 微信登录
 
 `WECHAT_MOCK_LOGIN=true`（默认 `.env` 已开）时，`POST /api/v1/auth/wechat/login` 不访问微信：

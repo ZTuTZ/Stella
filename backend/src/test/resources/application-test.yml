@@ -21,8 +21,10 @@ app:
   generation:
     worker-delay-ms: 60000
     retry-backoff-base-ms: 0
-  # Mock 音频立即 READY，fixture 放进测试目录；测试固定 mock，避免继承本地 .env 的 tencent
+  # 测试固定 mock，避免继承本地 .env 的 openai/tencent 真实调用
   ai:
+    text:
+      provider: mock
     audio:
       provider: mock
       mock-delay-ms: 0
